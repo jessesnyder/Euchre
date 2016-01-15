@@ -2,10 +2,6 @@ from player import Player
 
 
 class LivePlayer(Player):
-    def __init__(selfname, number):
-        self.name = name
-        self.number = number
-        self.voids = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
 
     def bid(self, bidding_round, player_position): #Does this override bid for Player class?
         if bidding_round == 0:

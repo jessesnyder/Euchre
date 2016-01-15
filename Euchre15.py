@@ -23,9 +23,9 @@ NO_BID = 999
 
 
 # This section is for defining global functions.
-def labelcard(suit, position):
-    'Labels cards in a way comprehensible to user.'
-    return str('the ' + positionlabels[position] + ' of ' + suitlabels[suit])
+def print_card(card):
+    """ UI-appropriate view of a Card """
+    return str('the ' + card.count + ' of ' + card.suit)
 
 
 def calc_card_point_value(trump_local, card_local):
@@ -61,7 +61,7 @@ def run(lpactive=False, games=200):
     # Start game.
 
     if lpactive:
-        print("Your partner is Sue.")
+        print("Your partner is {0}.".format(Player0.partner.name))
 
     positions = [0, 1, 2, 3]
     nextdealer_num = randint(0, 3)
@@ -106,7 +106,7 @@ def run(lpactive=False, games=200):
         topcard = shuffledcards[0]
         trump = topcard.suit
         if lpactive:
-            print("The up-card is " + labelcard(topcard.suit, topcard.count))
+            print("The up-card is " + print_card(topcard))
         for player in Players:
             if lpactive and player == 0:
                 player.showhand(trump, 0)
@@ -146,7 +146,7 @@ def run(lpactive=False, games=200):
                 if bidder_num == dealer_num:
                     action = " picks "
                 if lpactive:
-                    print(Players[bidder_num].name + action + "up " + labelcard(topcard.suit, topcard.count) + (". Going alone" * alone) + ".")
+                    print(Players[bidder_num].name + action + "up " + print_card(topcard) + (". Going alone" * alone) + ".")
                 if isinstance(dealer, LivePlayer):
                     validdiscards = [1, 2, 3, 4, 5, 6]
                     lpdiscard = 999
@@ -212,7 +212,7 @@ def run(lpactive=False, games=200):
                         if played_card == LB:
                             leadsuit = trump
                     if lpactive:
-                        print(player.name + " plays " + labelcard(played_card[0], played_card[1]) + ".")
+                        print(player.name + " plays " + print_card(played_card) + ".")
                     played_cards.append(played_card)
                     if not(played_card[0]) == leadsuit:
                         for player2 in Players:

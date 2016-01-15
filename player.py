@@ -10,6 +10,15 @@ class Player():
         self.handbu = []
         self.isDealer = isDealer
 
+    def __repr__(self):
+        partner = "(no partner)"
+        if self.partner is not None:
+            partner = self.partner.name
+
+        return "<{0} {1}, partner of {2}>".format(
+            self.__class__.__name__, self.name, partner
+        )
+
     def add_card(self, card):
         self.hand.append(card)
 
