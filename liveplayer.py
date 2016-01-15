@@ -3,6 +3,9 @@ from player import Player
 
 class LivePlayer(Player):
 
+    def hand_owner_label(self):
+        return "\nYour hand:"
+
     def bid(self, is_first_bidding_round, player_position):
         if is_first_bidding_round:
             trump = topcard[0]

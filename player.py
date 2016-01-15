@@ -118,11 +118,12 @@ class Player():
             if self.opposingteam == dealer.opposingteam: self.handvalue -= (calc_card_point_value(trump_local, topcard) + 3) #Negative points for adding up-card to opposing team's hand,  plus extra penalty (3) for possibility they'll create a void.
         return (self.handvalue)
 
+    def hand_owner_label(self):
+        return "\n{0}'s hand:".format(self.name)
+
     def showhand(self, trump_local, is_first_bidding_round):
-        if isinstance(self, LivePlayer):
-            print("\nYour hand:")
-        else:
-            print("\n"+self.name+"\'s hand:")
+        print self.hand_owner_label()
+
         self.hand.sort(key=lambda card: card[1])  # sort by position
         self.hand.sort(key=lambda card: card[0])  # sort by suit
         LB_local = (999, 999)
