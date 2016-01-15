@@ -3,8 +3,8 @@ from player import Player
 
 class LivePlayer(Player):
 
-    def bid(self, bidding_round, player_position): #Does this override bid for Player class?
-        if bidding_round == 0:
+    def bid(self, is_first_bidding_round, player_position):
+        if is_first_bidding_round:
             trump = topcard[0]
             handval = self.calc_handvalue(trump, 0)
             validbids = [0, 1, 2, 88]
@@ -17,7 +17,7 @@ class LivePlayer(Player):
             if bid_type == 88:
                 Teams[0].score += 10
                 bid_type = 1
-            roundinfo = [bid_type, hand, bidding_round, player_position, handval, trump, topcard, self.hand]
+            roundinfo = [bid_type, hand, is_first_bidding_round, player_position, handval, trump, topcard, self.hand]
             bidding_data.append(roundinfo)
             self.team.bid = bid_type
             return trump, bid_type
@@ -53,7 +53,7 @@ class LivePlayer(Player):
                 handval = max(y)
                 trump = x[y.index(max(y))]
                 bid_type = 0
-            roundinfo = [bid_type, hand, bidding_round, player_position, handval, trump, topcard, self.hand]
+            roundinfo = [bid_type, hand, is_first_bidding_round, player_position, handval, trump, topcard, self.hand]
             bidding_data.append(roundinfo)
             self.team.bid = bid_type
             return trump,  bid_type

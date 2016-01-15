@@ -78,11 +78,11 @@ class Player():
                 self.cardvalues.append(value)
         return self.cardvalues
 
-    def calc_handvalue(self, trump_local, topcard, bidding_round):
+    def calc_handvalue(self, trump_local, topcard, is_first_bidding_round):
         'Totals up hand value based on particular assumption of trump.'
         self.handvalue = 0
         trial_hand = self.hand[:]
-        if bidding_round == 0 and self.isDealer:
+        if is_first_bidding_round and self.isDealer:
             trial_hand.append(topcard)
         trumplist = [0, 1, 2, 3]
         trumplist = trumplist[trump_local:] + trumplist[:trump_local]
@@ -112,13 +112,13 @@ class Player():
         if not(trumpvoid):
             for suit in range(0, 4):
                 if suitcounts[suit] == 0 and not(suit == trump_local): self.handvalue += 6
-        if bidding_round == 0:
+        if is_first_bidding_round:
             if self.partner.number == dealer_num: #Extra points for adding up-card to hand or to partner's hand.
                 self.handvalue += (calc_card_point_value(trump_local, topcard) +3)
             if self.opposingteam == dealer.opposingteam: self.handvalue -= (calc_card_point_value(trump_local, topcard) + 3) #Negative points for adding up-card to opposing team's hand,  plus extra penalty (3) for possibility they'll create a void.
         return (self.handvalue)
 
-    def showhand(self, trump_local, bidding_round):
+    def showhand(self, trump_local, is_first_bidding_round):
         if isinstance(self, LivePlayer):
             print("\nYour hand:")
         else:
@@ -126,7 +126,7 @@ class Player():
         self.hand.sort(key=lambda card: card[1])  # sort by position
         self.hand.sort(key=lambda card: card[0])  # sort by suit
         LB_local = (999, 999)
-        if bidding_round == 0 and trump_local > -1:  # NOTE: Bidding round is 0 in first round of bidding and after a bid is made
+        if is_first_bidding_round and trump_local > -1:
             trumpcards = []
             trumplist = [0, 1, 2, 3]
             trumplist = trumplist[trump_local:] + trumplist[:trump_local]
@@ -189,7 +189,7 @@ class Player():
         highcutR0 = 49
         highcutR1 = 46
 
-        if bidding_round == 0:
+        if is_first_bidding_round:
             trump = topcard.suit
             self.handval = self.calc_handvalue(trump, topcard, 0)
             if self.handval > lowcutR0:
