@@ -40,6 +40,6 @@ class Deck(Sequence):
         return self._cards.pop()
 
     def deal(self, players):
-        for i in range(0, CARDS_PER_HAND):
+        for i in range(CARDS_PER_HAND):
             for player in players:
                 player.add_card(self.pop())
