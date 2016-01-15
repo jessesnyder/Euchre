@@ -17,7 +17,9 @@ class Card():
         self.suit = suit
 
     def __repr__(self):
-        return "<{0} of {1}>".format(self.count, self.suit)
+        return "<{0} {1} of {2}>".format(
+            self.__class__.__name__, self.count, self.suit
+        )
 
 
 class Deck(Sequence):

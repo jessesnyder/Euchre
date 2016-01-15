@@ -69,7 +69,7 @@ class Player():
                 self.cardvalues.append(value)
         return self.cardvalues
 
-    def calc_handvalue(self, trump_local, bidding_round):
+    def calc_handvalue(self, trump_local, topcard, bidding_round):
         'Totals up hand value based on particular assumption of trump.'
         self.handvalue = 0
         trial_hand = self.hand[:]
@@ -182,7 +182,7 @@ class Player():
 
         if bidding_round == 0:
             trump = topcard.suit
-            self.handval = self.calc_handvalue(trump, 0)
+            self.handval = self.calc_handvalue(trump, topcard, 0)
             if self.handval > lowcutR0:
                 if self.handval > highcutR0:
                     bid_type = 2
@@ -196,7 +196,7 @@ class Player():
             y = [0, 0, 0]
             count = 0
             for trump in x:
-                y[count] = self.calc_handvalue(trump, 1)
+                y[count] = self.calc_handvalue(trump, topcard, 1)
                 count += 1
             if max(y) > lowcutR1:
                 if max(y) > highcutR1:
