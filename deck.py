@@ -15,20 +15,6 @@ def suits_trump_first(trump):
     return suits[suits.index(trump):] + suits[:suits.index(trump)]
 
 
-def calc_card_point_value(trump_local, card):
-    value = card.raw_value
-    if card.is_right_bauer(trump_local):
-        value += 16
-    elif card.suit == trump_local:
-        value += 6
-    # Check for Left Bauer
-    elif card.is_left_bauer(trump_local):
-        value += 13  # Sets value of left bauer.
-
-    return value
-
-
-class Card():
 class Card(object):
 
     def __init__(self, position, suit):
@@ -43,22 +29,32 @@ class Card(object):
 
     def __eq__(self, other):
         return self.suit == other.suit and self.position == other.position
-    def is_right_bauer(self, trump=None):
-        if trump is None:
-            return False
-        if self.position != 'Jack':
-            return False
+
+    def value(self, trump):
+        """ Return a relative value for this Card. Not quite sure
+            how this works.
+        """
+        if self.is_right_bauer(trump):
+            return self.raw_value + 16
+
+        if self.is_left_bauer(trump):
+            return self.raw_value + 13
+
         if self.suit == trump:
-            return True
-        return False
+            return self.raw_value + 6
+
+        return self.raw_value
+
+    def is_right_bauer(self, trump=None):
+        return self.position == 'Jack' and self.suit == trump
 
     def is_left_bauer(self, trump=None):
-        if trump is None:
+        if trump is None or self.position != 'Jack':
             return False
-        if self.position != 'Jack':
-            return False
+
         if abs(SUITS.index(self.suit) - 2) == SUITS.index(trump):
             return True
+
         return False
 
     def is_same_suit(self, suit, trump):

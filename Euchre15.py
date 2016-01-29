@@ -3,7 +3,6 @@ from player import Player
 from liveplayer import LivePlayer
 from team import Team
 from deck import Deck
-from deck import calc_card_point_value
 
 
 # This section is for setting global variables and importing methods.
@@ -227,9 +226,9 @@ def run(lpactive=False, games=200):
                                 for player3 in Players:
                                     player3.voids[player2.number][suit] = 1  # If player knows, based on played cards and own hand, there's a void in a suit, this is registered as a void for all players, only known to player.
                     if played_card.suit == leadsuit or played_card.is_left_bauer(trump):
-                        played_cards_values.append(calc_card_point_value(trump, played_card))
+                        played_cards_values.append(played_card.value(trump))
                     elif played_card[0] == trump:
-                        played_cards_values.append(calc_card_point_value(trump, played_card))
+                        played_cards_values.append(played_card.value(trump))
                     else:
                         played_cards_values.append(-1)
                     currentwinner_num = tricksequence[played_cards_values.index(max(played_cards_values))].number #i.e., the current winner number is the number of the player in the tricksequence whose card value is currently highest among all played cards.

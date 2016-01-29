@@ -1,6 +1,5 @@
 from deck import SUITS
 from deck import Card
-from deck import calc_card_point_value
 from deck import Deck
 from deck import suits_trump_first
 
@@ -70,14 +69,13 @@ class Player():
     def updatecards_out(self, card):
         self.cards_out.remove(card)
 
-    def getcardvalues(self, trump_local):
+    def getcardvalues(self, trump):
         self.cardvalues = []
         if replay == 2:
             self.cardvalues = self.handbu[:]
         else:
             for card in self.hand:
-                value = calc_card_point_value(trump_local, card)
-                self.cardvalues.append(value)
+                self.cardvalues.append(card.value(trump))
         return self.cardvalues
 
     def calc_handvalue(self, trump, topcard=None, is_first_bidding_round=False):
@@ -106,7 +104,7 @@ class Player():
         if len(trial_hand) == 6:
             del trial_hand[discardvalues.index(min(discardvalues))]
         for card in trial_hand:
-            self.handvalue += calc_card_point_value(trump, card)
+            self.handvalue += card.value(trump)
             if card.raw_value < 5 and card.raw_value > 0:
                 # reduces value of 10 through King for bidding purposes
                 self.handvalue -= 1
@@ -118,12 +116,12 @@ class Player():
         if is_first_bidding_round:
             if self.partner.isDealer:
                 # Extra points for adding up-card to hand or to partner's hand.
-                self.handvalue += (calc_card_point_value(trump, topcard) + 3)
+                self.handvalue += topcard.value(trump) + 3
             # Negative points for adding up-card to opposing team's hand,
             # plus extra penalty (3) for possibility they'll create a void.
             # XXX This seems to just check if my partner is the dealer again?
             # if self.opposingteam == dealer.opposingteam:
-            #     self.handvalue -= (calc_card_point_value(trump, topcard) + 3)
+            #     self.handvalue -= topcard.value(trump) + 3)
 
         return self.handvalue
 
@@ -149,7 +147,7 @@ class Player():
             trumpcardvalues = []
             trumpcards2 = trumpcards[:]
             for card in trumpcards:
-                trumpcardvalues.append(calc_card_point_value(trump_local, card)) #calculates values for trump cards
+                trumpcardvalues.append(card.value(trump_local))
 
             def findkey(tup):
                 """ function returns value of trump card by matching position
@@ -250,7 +248,7 @@ class Player():
                 higher = 0
                 trumps_out = self.getsuit(trump, self.cards_out, trump)
                 for card2 in trumps_out:
-                    if calc_card_point_value(trump, card) < calc_card_point_value(trump, card2):
+                    if card.value(trump) < card2.value(trump):
                         higher += 1
                 if higher == 0:
                     # card is higher than trump cards still out in other
@@ -270,7 +268,7 @@ class Player():
                 lower = 0
                 higher = 0
                 for card2 in self.getsuit(card.suit, self.cards_out, trump):
-                    if calc_card_point_value(trump, card) < calc_card_point_value(trump, card2):
+                    if card.value(trump) < card2.value(trump):
                         higher += 1
                     else:
                         lower += 1
@@ -304,9 +302,9 @@ class Player():
             validcardvalues = []
             trumpcardvalues = []
             for validcard in validcards:
-                    validcardvalues.append(calc_card_point_value(trump_local, validcard))
+                    validcardvalues.append(validcard.value(trump_local))
             for trumpcard in trumpcards:
-                    trumpcardvalues.append(calc_card_point_value(trump_local, trumpcard))
+                    trumpcardvalues.append(trumpcard.value(trump_local))
             if validcards:
                 lowcard = validcards[validcardvalues.index(min(validcardvalues))]
                 highcard = validcards[validcardvalues.index(max(validcardvalues))]
@@ -317,34 +315,39 @@ class Player():
                 if Players[currentwinner_num] == self.partner:  # If your partner is winning....
                     partnercard = played_cards[tricksequence.index(self.partner)]
                     for card in self.getsuit(leadsuit_local, self.cards_out, trump_local):
-                        if calc_card_point_value(trump_local, card) > calc_card_point_value(trump_local, partnercard): # And there's a within-suit card still out that's higher than partner's.
+                        if card.value(trump_local) > partnercard.value(trump_local): # And there's a within-suit card still out that's higher than partner's.
                             # NOTE: This will sometimes lead to playing a higher card than necessary--if in last position,  will play highest card even when a lower might be sure to win; and if partner is just one step below.
-                            if calc_card_point_value(trump_local, highcard) > calc_card_point_value(trump_local, partnercard):
-                                return highcard #... and could lose to other in-suit card,  then play my high card,  if it beats partner's.
+                            if highcard.value(trump_local) > partnercard.value(trump_local):
+                                return highcard  # ... and could lose to other in-suit card,  then play my high card,  if it beats partner's.
                     else:
                         return lowcard
-                else: # If partner not winning....
+                else:  # If partner not winning....
                     # NOTE: This will sometimes lead to playing a higher card than necessary.
-                    if calc_card_point_value(trump_local, highcard) > max(played_cards_values): return highcard
-                    else: return lowcard
+                    if highcard.value(trump_local) > max(played_cards_values):
+                        return highcard
+                    else:
+                        return lowcard
             elif trumpcards:
                 if Players[currentwinner_num] == self.partner:  # If your partner is winning....
                     partnercard = played_cards[tricksequence.index(self.partner)]
                     for card in self.getsuit(leadsuit_local, self.cards_out, trump_local):
-                        if calc_card_point_value(trump_local, card) > calc_card_point_value(trump_local, partnercard):
-                            if calc_card_point_value(trump_local, lowtrump) > calc_card_point_value(trump_local, partnercard): return lowtrump #... and could lose to other in-suit card,  then play my lowest trump card,  if it beats partner's.
-                            elif calc_card_point_value(trump_local, hightrump) > calc_card_point_value(trump_local, partnercard): return hightrump
+                        if card.value(trump_local) > partnercard.value(trump_local):
+                            if lowtrump.value(trump_local) > partnercard.value(trump_local):
+                                return lowtrump  # ... and could lose to other in-suit card,  then play my lowest trump card,  if it beats partner's.
+                            elif hightrump.value(trump_local) > partnercard.value(trump_local):
+                                return hightrump
                 else:
-                    if calc_card_point_value(trump_local, lowtrump) > max(played_cards_values):
+                    if lowtrump.value(trump_local) > max(played_cards_values):
                         return lowtrump
                     else:
-                        if calc_card_point_value(trump_local, hightrump) > max(played_cards_values):
+                        if hightrump.value(trump_local) > max(played_cards_values):
                             return hightrump
 
             # If this point reached,  cannot win trick. Play lowest card.
             for card in self.hand:
-                    follow_card_values.append(calc_card_point_value(trump_local, card))
-                    if self.getsuit(card[0], self.hand, trump_local) == 1: follow_card_values[len(follow_card_values)] -= 4
+                    follow_card_values.append(card.value(trump_local))
+                    if self.getsuit(card[0], self.hand, trump_local) == 1:
+                        follow_card_values[len(follow_card_values)] -= 4
             followcard = self.hand[follow_card_values.index(min(follow_card_values))]
             return followcard
 
