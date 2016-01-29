@@ -3,6 +3,7 @@ from player import Player
 from liveplayer import LivePlayer
 from team import Team
 from deck import Deck
+from deck import calc_card_point_value
 
 
 # This section is for setting global variables and importing methods.
@@ -25,19 +26,7 @@ NO_BID = 999
 # This section is for defining global functions.
 def print_card(card):
     """ UI-appropriate view of a Card """
-    return str('the ' + card.count + ' of ' + card.suit)
-
-
-def calc_card_point_value(trump_local, card_local):
-            value = card_local[1]
-            if card_local[0] == trump_local:
-                if card_local[1] == 2:
-                    value += 16
-                else:
-                    value += 6
-            if abs(card_local[0] - trump_local) == 2 and card_local[1] == 2:
-                value += 13  # Sets value of left bauer.
-            return value
+    return str('the ' + card.position + ' of ' + card.suit)
 
 
 def run(lpactive=False, games=200):
@@ -115,13 +104,19 @@ def run(lpactive=False, games=200):
         firstbidder_num = Players[dealers[1]].number
         bidders = positions[firstbidder_num:] + positions[:firstbidder_num]
         # Bidding
-        bidding_round = 0
         bid = 0
         for bidder_num in bidders:
-            bid = Players[bidder_num].bid(0, bidders.index(bidder_num), topcard)  # Second parameter is "player position" in bidding order, currently stored when recording live player data. May have other uses.
+            bidmaker = Players[bidder_num]
+            # Second parameter is "player position" in bidding order,
+            # currently stored when recording live player data.
+            # May have other uses.
+            bid = bidmaker.bid(
+                is_first_bidding_round=False,
+                player_position=bidders.index(bidder_num),
+                topcard=topcard
+            )
             bid_type = bid[1]
             if bid_type > 0:
-                bidmaker = Players[bidder_num]
                 dealer.hand.append(topcard)
                 if isinstance(dealer, LivePlayer):
                     # If the LivePlayer needs to discard, the following is skipped. LP must be prompted to discard below.
@@ -137,7 +132,7 @@ def run(lpactive=False, games=200):
                     del(dealer.hand[discardvalues.index(max(discardvalues))])  # Discards from dealers hand the card that resulted in highest hand value when discarded.
             if bid_type == 0:
                 if lpactive:
-                    print(Players[bidder_num].name + " passes.")
+                    print(bidmaker.name + " passes.")
                 continue
             else:
                 if bid_type == 2:
@@ -146,7 +141,7 @@ def run(lpactive=False, games=200):
                 if bidder_num == dealer_num:
                     action = " picks "
                 if lpactive:
-                    print(Players[bidder_num].name + action + "up " + print_card(topcard) + (". Going alone" * alone) + ".")
+                    print(bidmaker.name + action + "up " + print_card(topcard) + (". Going alone" * alone) + ".")
                 if isinstance(dealer, LivePlayer):
                     validdiscards = [1, 2, 3, 4, 5, 6]
                     lpdiscard = 999
@@ -160,31 +155,33 @@ def run(lpactive=False, games=200):
             break
         if bid_type == 0:  # round of bidding in other suits, if bid_type is still 0.
             for bidder_num in bidders:
-                Players[bidder_num].updatecards_out(topcard)
+                bidmaker = Players[bidder_num]
+                bidmaker.updatecards_out(topcard)
             for bidder_num in bidders:
-                bid = Players[bidder_num].bid(1, bidders.index(bidder_num), topcard)
+                bidmaker = Players[bidder_num]
+                bid = bidmaker.bid(1, bidders.index(bidder_num), topcard)
                 trump = bid[0]
                 bid_type = bid[1]
                 if bid_type > 0:
-                    bidmaker = Players[bidder_num]
+                    bidmaker = bidmaker
                 if bid_type == 0:
                     if lpactive:
-                        print(Players[bidder_num].name + " passes.")
+                        print(bidmaker.name + " passes.")
                     continue
                 else:
                     if bid_type == 2:
                         alone = 1
                     if lpactive:
-                        print(Players[bidder_num].name + " bids " + suitlabels[trump] + (" alone" * alone) + ".")
+                        print(bidmaker.name + " bids " + suitlabels[trump] + (" alone" * alone) + ".")
                     break
         if bid_type == 0:
             if lpactive:
                 print("No one bids. Redeal!")
             continue
         else:
-            trumplist = [0, 1, 2, 3]
-            trumplist = trumplist[trump:] + trumplist[:trump]
-            LB = (trumplist[2], 2)
+            # trumplist = [0, 1, 2, 3]
+            # trumplist = trumplist[trump:] + trumplist[:trump]
+            # LB = (trumplist[2], 2)
             # Playing
             trickcount = 1
             Team1.trickscore = 0
@@ -203,28 +200,33 @@ def run(lpactive=False, games=200):
                 else:
                     leader_num = currentwinner_num
                 tricksequence = Players[leader_num:] + Players[0:leader_num]
+                import pdb; pdb.set_trace()
                 if bid_type == 2:
                     tricksequence.remove(bidmaker.partner)
                 for player in tricksequence:
-                    played_card = (player.play(leadsuit, trump))
+                    played_card = player.play(
+                        leadsuit=leadsuit,
+                        trump=trump,
+                        tricksequence=tricksequence
+                    )
                     if player == tricksequence[0]:
-                        leadsuit = played_card[0]
-                        if played_card == LB:
+                        leadsuit = played_card.suit
+                        if played_card.is_left_bauer(trump):
                             leadsuit = trump
                     if lpactive:
                         print(player.name + " plays " + print_card(played_card) + ".")
                     played_cards.append(played_card)
-                    if not(played_card[0]) == leadsuit:
+                    if not played_card.suit == leadsuit:
                         for player2 in Players:
                             player2.voids[player.number][leadsuit] = 1  # All players update their known voids if the see current player not following suit. NOTE: This would be better if it could somehow be assessed at the end of the trick. Otherwise, players are playing as if people who have already played in trick could trump in.
                     for player2 in Players:
-                        if not(player2 == player):
+                        if not player2 == player:
                             player2.updatecards_out(played_card)  # All players update the cards they know are out.
                         for suit in range(4):
-                            if len(player2.getsuit(suit, player2.cards_out, trump)) ==  0:
+                            if len(player2.getsuit(suit, player2.cards_out, trump)) == 0:
                                 for player3 in Players:
                                     player3.voids[player2.number][suit] = 1  # If player knows, based on played cards and own hand, there's a void in a suit, this is registered as a void for all players, only known to player.
-                    if played_card[0] == leadsuit or played_card == LB:
+                    if played_card.suit == leadsuit or played_card.is_left_bauer(trump):
                         played_cards_values.append(calc_card_point_value(trump, played_card))
                     elif played_card[0] == trump:
                         played_cards_values.append(calc_card_point_value(trump, played_card))
