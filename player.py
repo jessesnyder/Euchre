@@ -1,6 +1,7 @@
 from deck import SUITS
 from deck import Card
 from deck import calc_card_point_value
+from deck import Deck
 from deck import suits_trump_first
 
 
@@ -13,6 +14,7 @@ class Player():
         self.handvalue = 0
         self.handbu = []
         self.isDealer = isDealer
+        self.cards_out = Deck()  # all players count cards
 
     def __repr__(self):
         partner = "(no partner)"
@@ -25,6 +27,7 @@ class Player():
 
     def add_card(self, card):
         self.hand.append(card)
+        self.updatecards_out(card)
 
     # def getcards(self):
     #     self.hand = []
@@ -65,7 +68,7 @@ class Player():
         self.opposingteam = team
 
     def updatecards_out(self, card):
-        del self.cards_out[self.cards_out.index(card)]
+        self.cards_out.remove(card)
 
     def getcardvalues(self, trump_local):
         self.cardvalues = []

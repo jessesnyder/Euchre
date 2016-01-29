@@ -29,6 +29,7 @@ def calc_card_point_value(trump_local, card):
 
 
 class Card():
+class Card(object):
 
     def __init__(self, position, suit):
         self.position = position
@@ -40,6 +41,8 @@ class Card():
             self.__class__.__name__, self.position, self.suit
         )
 
+    def __eq__(self, other):
+        return self.suit == other.suit and self.position == other.position
     def is_right_bauer(self, trump=None):
         if trump is None:
             return False
@@ -79,7 +82,13 @@ class Deck(Sequence):
         return len(self._cards)
 
     def pop(self):
+        """ Remove the top card """
         return self._cards.pop()
+
+    def remove(self, card):
+        """ Remove a specific card """
+        if card in self._cards:
+            self._cards.remove(card)
 
     def deal(self, players):
         for i in range(CARDS_PER_HAND):

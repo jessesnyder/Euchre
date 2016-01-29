@@ -1,6 +1,22 @@
 from unittest import TestCase, main
 from deck import Card
+from deck import Deck
 from deck import suits_trump_first
+
+
+class TestCards(TestCase):
+
+    def test_cards_are_equal_if_same_suit_and_position(self):
+        self.assertEqual(
+            Card(suit='Hearts', position='Jack'),
+            Card(suit='Hearts', position='Jack')
+        )
+
+    def test_cards_not_equal_if_suit_and_position_differ(self):
+        self.assertNotEqual(
+            Card(suit='Diamonds', position='Jack'),
+            Card(suit='Hearts', position='Jack')
+        )
 
 
 class Test_is_same_suit(TestCase):
@@ -75,6 +91,14 @@ class Testsuits_trump_first(TestCase):
             order
         )
 
+
+class TestDeck(TestCase):
+
+    def test_remove(self):
+        deck = Deck()
+        card = Card(suit="Hearts", position="Queen")
+        deck.remove(card)
+        self.assertFalse(card in deck)
 
 if __name__ == '__main__':
     main()
