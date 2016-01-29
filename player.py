@@ -128,16 +128,16 @@ class Player():
     def hand_owner_label(self):
         return "\n{0}'s hand:".format(self.name)
 
-    def showhand(self, trump_local, is_first_bidding_round):
+    def showhand(self, trump, is_first_bidding_round):
         print self.hand_owner_label()
 
         self.hand.sort(key=lambda card: card[1])  # sort by position
         self.hand.sort(key=lambda card: card[0])  # sort by suit
         left_bauer_local = (999, 999)
-        if is_first_bidding_round and trump_local > -1:
+        if is_first_bidding_round and trump > -1:
             trumpcards = []
             for card in self.hand:
-                if card.suite == trump_local or card.is_left_bauer(trump_local):
+                if card.suite == trump or card.is_left_bauer(trump):
                     trumpcards.append(card)
             selfhandmatch = self.hand[:]
             for card in selfhandmatch:
@@ -147,7 +147,7 @@ class Player():
             trumpcardvalues = []
             trumpcards2 = trumpcards[:]
             for card in trumpcards:
-                trumpcardvalues.append(card.value(trump_local))
+                trumpcardvalues.append(card.value(trump))
 
             def findkey(tup):
                 """ function returns value of trump card by matching position
@@ -278,7 +278,8 @@ class Player():
                     lead_card_values[count] += 1  # Of cards in same suit that are still out there,  lower cards outnumber higher by more than 1.
                 if higher > lower:
                     lead_card_values[count] -= 1  # Of cards in same suit that are still out there,  more are higher than lower.
-                if sum(self.voids[self.partner.number]) > 0 and self.voids[self.partner.number][trump] == 0: lead_card_values[count] += 2 #My partner could trump in.
+                if sum(self.voids[self.partner.number]) > 0 and self.voids[self.partner.number][trump] == 0:
+                    lead_card_values[count] += 2  # My partner could trump in.
                 if self.voids[self.opposingteam.playerA.number][card.suit] == 1:
                     if self.voids[self.opposingteam.playerA.number][trump] == 1:
                         # player in opposing team cannot beat,  cannot trump
@@ -295,16 +296,16 @@ class Player():
         leadcard = self.hand[lead_card_values.index(max(lead_card_values))]
         return leadcard  # NOTE-If highest value is found in more than one card,  the first card in hand will be chosen.
 
-    def follow(self, leadsuit_local, trump_local):
+    def follow(self, leadsuit, trump):
             follow_card_values = []
-            validcards = self.getsuit(leadsuit_local, self.hand, trump_local)
-            trumpcards = self.getsuit(trump_local, self.hand, trump_local)
+            validcards = self.getsuit(leadsuit, self.hand, trump)
+            trumpcards = self.getsuit(trump, self.hand, trump)
             validcardvalues = []
             trumpcardvalues = []
             for validcard in validcards:
-                    validcardvalues.append(validcard.value(trump_local))
+                    validcardvalues.append(validcard.value(trump))
             for trumpcard in trumpcards:
-                    trumpcardvalues.append(trumpcard.value(trump_local))
+                    trumpcardvalues.append(trumpcard.value(trump))
             if validcards:
                 lowcard = validcards[validcardvalues.index(min(validcardvalues))]
                 highcard = validcards[validcardvalues.index(max(validcardvalues))]
@@ -314,39 +315,39 @@ class Player():
             if validcards:
                 if Players[currentwinner_num] == self.partner:  # If your partner is winning....
                     partnercard = played_cards[tricksequence.index(self.partner)]
-                    for card in self.getsuit(leadsuit_local, self.cards_out, trump_local):
-                        if card.value(trump_local) > partnercard.value(trump_local): # And there's a within-suit card still out that's higher than partner's.
+                    for card in self.getsuit(leadsuit, self.cards_out, trump):
+                        if card.value(trump) > partnercard.value(trump): # And there's a within-suit card still out that's higher than partner's.
                             # NOTE: This will sometimes lead to playing a higher card than necessary--if in last position,  will play highest card even when a lower might be sure to win; and if partner is just one step below.
-                            if highcard.value(trump_local) > partnercard.value(trump_local):
+                            if highcard.value(trump) > partnercard.value(trump):
                                 return highcard  # ... and could lose to other in-suit card,  then play my high card,  if it beats partner's.
                     else:
                         return lowcard
                 else:  # If partner not winning....
                     # NOTE: This will sometimes lead to playing a higher card than necessary.
-                    if highcard.value(trump_local) > max(played_cards_values):
+                    if highcard.value(trump) > max(played_cards_values):
                         return highcard
                     else:
                         return lowcard
             elif trumpcards:
                 if Players[currentwinner_num] == self.partner:  # If your partner is winning....
                     partnercard = played_cards[tricksequence.index(self.partner)]
-                    for card in self.getsuit(leadsuit_local, self.cards_out, trump_local):
-                        if card.value(trump_local) > partnercard.value(trump_local):
-                            if lowtrump.value(trump_local) > partnercard.value(trump_local):
+                    for card in self.getsuit(leadsuit, self.cards_out, trump):
+                        if card.value(trump) > partnercard.value(trump):
+                            if lowtrump.value(trump) > partnercard.value(trump):
                                 return lowtrump  # ... and could lose to other in-suit card,  then play my lowest trump card,  if it beats partner's.
-                            elif hightrump.value(trump_local) > partnercard.value(trump_local):
+                            elif hightrump.value(trump) > partnercard.value(trump):
                                 return hightrump
                 else:
-                    if lowtrump.value(trump_local) > max(played_cards_values):
+                    if lowtrump.value(trump) > max(played_cards_values):
                         return lowtrump
                     else:
-                        if hightrump.value(trump_local) > max(played_cards_values):
+                        if hightrump.value(trump) > max(played_cards_values):
                             return hightrump
 
             # If this point reached,  cannot win trick. Play lowest card.
             for card in self.hand:
-                    follow_card_values.append(card.value(trump_local))
-                    if self.getsuit(card[0], self.hand, trump_local) == 1:
+                    follow_card_values.append(card.value(trump))
+                    if self.getsuit(card[0], self.hand, trump) == 1:
                         follow_card_values[len(follow_card_values)] -= 4
             followcard = self.hand[follow_card_values.index(min(follow_card_values))]
             return followcard

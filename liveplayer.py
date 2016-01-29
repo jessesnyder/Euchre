@@ -61,26 +61,26 @@ class LivePlayer(Player):
             self.team.bid = bid_type
             return trump,  bid_type
 
-    def play(self, leadsuit_local, trump_local):
-        self.showhand(trump_local, 0)
+    def play(self, leadsuit, trump):
+        self.showhand(trump, 0)
         legit = [x+1 for x in range(len(self.hand))]
         pc = 999
         trumplist = [0, 1, 2, 3]
-        trumplist = trumplist[trump_local:]+trumplist[:trump_local]
+        trumplist = trumplist[trump:]+trumplist[:trump]
         LB_local = (trumplist[2], 2)
         while pc not in legit:
             try:
-                pc = input("Which card? (1 through "+str(len(self.hand))+"): ")
+                pc = input("Which card? (1 through " + str(len(self.hand)) + "): ")
             except:
                 pc = 999
             if pc in legit:
                 if tricksequence.index(self) > 0:
-                    if len(self.getsuit(leadsuit_local, self.hand, trump_local)) > 0:
-                        if self.hand[pc - 1] == LB_local and leadsuit == trump_local:
+                    if len(self.getsuit(leadsuit, self.hand, trump)) > 0:
+                        if self.hand[pc - 1] == LB_local and leadsuit == trump:
                             pass
-                        elif self.hand[pc - 1][0] !=  leadsuit_local and (pc in legit):
+                        elif self.hand[pc - 1][0] != leadsuit and (pc in legit):
                             print("Must follow lead suit.")
                             pc = 99
-        play_card = self.hand[pc-1]
-        del self.hand[pc-1]
+        play_card = self.hand[pc - 1]
+        del self.hand[pc - 1]
         return play_card
