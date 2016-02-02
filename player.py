@@ -3,16 +3,20 @@ from deck import Card
 from deck import Deck
 from deck import suits_trump_first
 
+NUM_PLAYERS = 4
+
 
 class Player():
     def __init__(self, name, number, isDealer=False):
         self.name = name
         self.number = number
-        self.voids = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        # For each player, count occurences of each suit, I think:
+        self.voids = []
         self.hand = []
         self.handvalue = 0
         self.handbu = []
         self.isDealer = isDealer
+        self.reset_voids()
         self.cards_out = Deck()  # all players count cards
 
     def __repr__(self):
@@ -84,8 +88,7 @@ class Player():
         trial_hand = self.hand[:]
         if is_first_bidding_round and self.isDealer:
             trial_hand.append(topcard)
-        suits_in_order = suits_trump_first(trump)
-        suitcounts = {suit: 0 for suit in suits_in_order}
+        suitcounts = self._suit_counter(trump)
         for card in trial_hand:
             if card.is_left_bauer(trump):
                 suitcounts[trump] += 1
@@ -359,3 +362,14 @@ class Player():
             play_card = self.follow(leadsuit, trump)
         del self.hand[self.hand.index(play_card)]
         return play_card
+
+    def reset_voids(self):
+        self.voids = [self._suit_counter() for i in range(NUM_PLAYERS)]
+
+    def _suit_counter(self, trump=None):
+        if trump is not None:
+            suits_in_order = suits_trump_first(trump)
+        else:
+            suits_in_order = SUITS
+
+        return {suit: 0 for suit in suits_in_order}

@@ -8,8 +8,9 @@ from deck import Deck
 # This section is for setting global variables and importing methods.
 
 # card_values = [(x, y) for x in range(4) for y in range(6)]
-# suitlabels = ['Hearts', 'Spades', 'Diamonds', 'Clubs'] #Having same-color suits two
-# apart enables actions recognizing their complementary relationship in Euchre.
+# suitlabels = ['Hearts', 'Spades', 'Diamonds', 'Clubs']
+# Having same-color suits two apart enables actions recognizing their
+# complementary relationship in Euchre.
 # positionlabels = ['9', '10', 'Jack', 'Queen', 'King', 'Ace']
 name = ""
 hands = 0
@@ -33,7 +34,6 @@ def run(lpactive=False, games=200):
         Player0 = LivePlayer("You", 0)
     else:
         Player0 = Player(BOT_PLAYER_NAMES[0], 0)
-
     Player1 = Player(BOT_PLAYER_NAMES[1], 1)
     Player2 = Player(BOT_PLAYER_NAMES[2], 2)
     Player3 = Player(BOT_PLAYER_NAMES[3], 3)
@@ -82,7 +82,6 @@ def run(lpactive=False, games=200):
         Team2.trickcount = 0
         alone = 0
         shuffledcards = Deck()
-        import pdb; pdb.set_trace()
         # for player in Players:
         #     player.getcards()
         shuffledcards.deal(Players)
@@ -118,7 +117,8 @@ def run(lpactive=False, games=200):
             if bid_type > 0:
                 dealer.hand.append(topcard)
                 if isinstance(dealer, LivePlayer):
-                    # If the LivePlayer needs to discard, the following is skipped. LP must be prompted to discard below.
+                    # If the LivePlayer needs to discard, the following
+                    # is skipped. LP must be prompted to discard below.
                     pass
                 else:
                     handbackup = dealer.hand[:]
@@ -128,7 +128,9 @@ def run(lpactive=False, games=200):
                         del(dealer.hand[discard])
                         discardvalues.append(dealer.calc_handvalue(trump, 0))
                     dealer.hand = handbackup
-                    del(dealer.hand[discardvalues.index(max(discardvalues))])  # Discards from dealers hand the card that resulted in highest hand value when discarded.
+                    # Discards from dealers hand the card that
+                    # resulted in highest hand value when discarded.
+                    del(dealer.hand[discardvalues.index(max(discardvalues))])
             if bid_type == 0:
                 if lpactive:
                     print(bidmaker.name + " passes.")
@@ -140,7 +142,10 @@ def run(lpactive=False, games=200):
                 if bidder_num == dealer_num:
                     action = " picks "
                 if lpactive:
-                    print(bidmaker.name + action + "up " + print_card(topcard) + (". Going alone" * alone) + ".")
+                    print(
+                        bidmaker.name + action + "up " +
+                        print_card(topcard) + (". Going alone" * alone) + "."
+                    )
                 if isinstance(dealer, LivePlayer):
                     validdiscards = [1, 2, 3, 4, 5, 6]
                     lpdiscard = 999
@@ -186,9 +191,7 @@ def run(lpactive=False, games=200):
             Team1.trickscore = 0
             Team2.trickscore = 0
             for player in Players:
-                player.voids = [
-                    [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]
-                ]
+                player.reset_voids()
             for trick in range(5):
                 if lpactive:
                     print("\nTrick " + str(trickcount) + ": ")
