@@ -213,9 +213,7 @@ def run(lpactive=False, num_games=200):
                         played_card_values=played_cards_values
                     )
                     if player == tricksequence[0]:
-                        leadsuit = played_card.suit
-                        if played_card.is_left_bauer(trump):
-                            leadsuit = trump
+                        leadsuit = played_card.effective_suit(trump)
                     if lpactive:
                         print("{0} plays {1}.".format(
                             player.name,
@@ -232,7 +230,7 @@ def run(lpactive=False, num_games=200):
                             if len(player2.getsuit(suit, player2.cards_out, trump)) == 0:
                                 for p in Players:
                                     p.learns_void(player2, suit)  # If player knows, based on played cards and own hand, there's a void in a suit, this is registered as a void for all players, only known to player.
-                    if played_card.suit == leadsuit or played_card.is_left_bauer(trump):
+                    if played_card.effective_suit(trump) == leadsuit:
                         played_cards_values.append(played_card.value(trump))
                     elif played_card.suit == trump:
                         played_cards_values.append(played_card.value(trump))

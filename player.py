@@ -91,15 +91,12 @@ class Player():
             trial_hand.append(topcard)
         suitcounts = self._suit_counter(trump)
         for card in trial_hand:
-            if card.is_left_bauer(trump):
-                suitcounts[trump] += 1
-            else:
-                suitcounts[card.suit] += 1
+            suitcounts[card.effective_suit(trump)] += 1
         # Calculate temporary card values.
         discardvalues = [9] * len(trial_hand)
         count = 0
         for card in trial_hand:
-            if not(card.suit == trump) and not card.is_left_bauer(trump):
+            if not card.effective_suit(trump) == trump:
                 # formula computes value of all non-trump card values by
                 # subtracting 4.5 from positional value,
                 # then dividing by the cube of all cards in that suit.
@@ -141,7 +138,7 @@ class Player():
         if is_first_bidding_round and trump > -1:
             trumpcards = []
             for card in self.hand:
-                if card.suite == trump or card.is_left_bauer(trump):
+                if card.effective_suit(trump) == trump:
                     trumpcards.append(card)
             selfhandmatch = self.hand[:]
             for card in selfhandmatch:
