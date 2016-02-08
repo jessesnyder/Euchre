@@ -133,7 +133,7 @@ class Player():
         return "\n{0}'s hand:".format(self.name)
 
     def showhand(self, trump, is_first_bidding_round):
-        print self.hand_owner_label()
+        print(self.hand_owner_label())
 
         self.hand.sort(key=lambda card: card[1])  # sort by position
         self.hand.sort(key=lambda card: card[0])  # sort by suit

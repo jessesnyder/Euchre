@@ -33,7 +33,7 @@ def print_card(card):
     return str('the ' + card.position + ' of ' + card.suit)
 
 
-def run(lpactive=False, games=200):
+def run(lpactive=False, num_games=200):
     if lpactive:
         Player0 = LivePlayer("You", 0)
     else:
@@ -64,15 +64,11 @@ def run(lpactive=False, games=200):
 
     game = 0
     leadsuit = -1
-    # NOTE: With respect to the function showhand,
-    # bidding_round just serves to distinguish between when trump is known (0)
-    # and when it isn't (1).
-    bidding_round = 0
     # 1 == "no" XXX: this should be converted to a boolean right after input
     replay = 1
     topcard = []
 
-    while game < games:
+    while game < num_games:
         # Dealing
         # if not(replay == 2):
         #     dealer_num = nextdealer_num
@@ -286,9 +282,14 @@ def run(lpactive=False, games=200):
                         " Team2 game wins = ",
                         Team2.gamescore
                     )
-    import pdb; pdb.set_trace()
+    result = "Team1 game wins = {0}, Team2 game wins = {1}".format(
+        Team1.gamescore,
+        Team2.gamescore
+    )
     if lpactive:
-        print("Team1 game wins = ", Team1.gamescore, " Team2 game wins = ", Team2.gamescore)
+        print(result)
+
+    return result
 
 
 if __name__ == "__main__":

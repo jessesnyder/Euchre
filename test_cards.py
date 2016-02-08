@@ -8,8 +8,8 @@ from Euchre15 import run
 class TestGameRunner(TestCase):
 
     def test_run(self):
-        result = run(games=1)
-        self.assertIn('games played', result)
+        result = run(num_games=1)
+        self.assertIn('game wins = 1', result)
 
 
 class TestCards(TestCase):
@@ -25,9 +25,6 @@ class TestCards(TestCase):
             Card(suit='Diamonds', position='Jack'),
             Card(suit='Hearts', position='Jack')
         )
-
-
-class Test_is_same_suit(TestCase):
 
     def test_non_left_bauer_false(self):
         card = Card(suit='Hearts', position='Jack')
