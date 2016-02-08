@@ -1,5 +1,10 @@
+"""Class Team."""
 
-class Team():
+from collections import Sequence
+
+
+class Team(Sequence):
+
     def __init__(self, number, playerA, playerB):
         self.name = "Team " + str(number)
         self.number = number
@@ -13,6 +18,17 @@ class Team():
         self.playerB.setpartner(self.playerA)
         self.playerA.setteam(self)
         self.playerB.setteam(self)
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self.playerA
+        if index == 1:
+            return self.playerB
+
+        raise IndexError("Only two players on a team in Euchre.")
+
+    def __len__(self):
+        return 2
 
     def setopposingteam(self, team):
         self.playerA.setopposingteam(team)

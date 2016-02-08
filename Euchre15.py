@@ -3,6 +3,9 @@ from player import Player
 from liveplayer import LivePlayer
 from team import Team
 from deck import Deck
+from deck import SUITS
+from score import score_round
+from score import undo_score_round
 
 
 # This section is for setting global variables and importing methods.
@@ -20,6 +23,7 @@ bidding_data = []
 # from random import shuffle
 
 BOT_PLAYER_NAMES = ['Sam', 'Kim', 'Sue', 'Tim']
+POINTS_TO_WIN_GAME = 10
 NO_BID = 999
 
 
@@ -75,6 +79,8 @@ def run(lpactive=False, games=200):
         dealer_num = nextdealer_num
         dealer = Players[dealer_num]
         dealer.isDealer = True
+
+        current_winner = None
 
         if lpactive:
             print("\n\nThe dealer is " + dealer.name + ".")
@@ -183,9 +189,6 @@ def run(lpactive=False, games=200):
                 print("No one bids. Redeal!")
             continue
         else:
-            # trumplist = [0, 1, 2, 3]
-            # trumplist = trumplist[trump:] + trumplist[:trump]
-            # LB = (trumplist[2], 2)
             # Playing
             trickcount = 1
             Team1.trickscore = 0
@@ -200,96 +203,75 @@ def run(lpactive=False, games=200):
                 if trickcount == 1:
                     leader_num = firstbidder_num
                 else:
-                    leader_num = currentwinner_num
+                    leader_num = current_winner.number
                 tricksequence = Players[leader_num:] + Players[0:leader_num]
-                import pdb; pdb.set_trace()
                 if bid_type == 2:
                     tricksequence.remove(bidmaker.partner)
                 for player in tricksequence:
                     played_card = player.play(
+                        current_winner=current_winner,
                         leadsuit=leadsuit,
                         trump=trump,
-                        tricksequence=tricksequence
+                        tricksequence=tricksequence,
+                        played_cards=played_cards,
+                        played_card_values=played_cards_values
                     )
                     if player == tricksequence[0]:
                         leadsuit = played_card.suit
                         if played_card.is_left_bauer(trump):
                             leadsuit = trump
                     if lpactive:
-                        print(player.name + " plays " + print_card(played_card) + ".")
+                        print("{0} plays {1}.".format(
+                            player.name,
+                            print_card(played_card)
+                        ))
                     played_cards.append(played_card)
                     if not played_card.suit == leadsuit:
-                        for player2 in Players:
-                            player2.voids[player.number][leadsuit] = 1  # All players update their known voids if the see current player not following suit. NOTE: This would be better if it could somehow be assessed at the end of the trick. Otherwise, players are playing as if people who have already played in trick could trump in.
+                        for p in Players:
+                            p.learns_void(player, leadsuit)  # All players update their known voids if the see current player not following suit. NOTE: This would be better if it could somehow be assessed at the end of the trick. Otherwise, players are playing as if people who have already played in trick could trump in.
                     for player2 in Players:
                         if not player2 == player:
                             player2.updatecards_out(played_card)  # All players update the cards they know are out.
-                        for suit in range(4):
+                        for suit in SUITS:
                             if len(player2.getsuit(suit, player2.cards_out, trump)) == 0:
-                                for player3 in Players:
-                                    player3.voids[player2.number][suit] = 1  # If player knows, based on played cards and own hand, there's a void in a suit, this is registered as a void for all players, only known to player.
+                                for p in Players:
+                                    p.learns_void(player2, suit)  # If player knows, based on played cards and own hand, there's a void in a suit, this is registered as a void for all players, only known to player.
                     if played_card.suit == leadsuit or played_card.is_left_bauer(trump):
                         played_cards_values.append(played_card.value(trump))
-                    elif played_card[0] == trump:
+                    elif played_card.suit == trump:
                         played_cards_values.append(played_card.value(trump))
                     else:
                         played_cards_values.append(-1)
-                    currentwinner_num = tricksequence[played_cards_values.index(max(played_cards_values))].number #i.e., the current winner number is the number of the player in the tricksequence whose card value is currently highest among all played cards.
-                Players[currentwinner_num].team.trickscore += 1
+                    # the current winner number is the number of the player
+                    # in the tricksequence whose card value is currently
+                    # highest among all played cards.
+                    current_winner = tricksequence[
+                        played_cards_values.index(max(played_cards_values))
+                    ]
+                current_winner.team.trickscore += 1
                 trickcount += 1
                 if lpactive:
-                    print("\n" + Players[currentwinner_num].name + " wins trick!")
+                    print("\n" + current_winner.name + " wins trick!")
 
-            for team in Teams:
-                if team.bid == 0:
-                    if team.trickscore > 2:
-                        team.score += 2
-                        roundwinner = team
-                if team.bid == 1:
-                    if team.trickscore > 2:
-                        team.score += 1
-                        roundwinner = team
-                    if team.trickscore > 4:
-                        team.score += 1
-                if team.bid == 2:
-                    if team.trickscore > 2:
-                        team.score += 1
-                        roundwinner = team
-                    if team.trickscore > 4:
-                        team.score += 3
+            roundwinner = score_round(Teams)
             # End of round
             if lpactive:
                 print(roundwinner.name + " wins round!")
-            if lpactive:
                 print("Team 1 score: " + str(Team1.score) + "; Team 2 score: " + str(Team2.score))
-            if lpactive:
                 print("Team 1 trick count:" + str(Team1.trickscore) + "; Team 2 trick count: " + str(Team2.trickscore))
             teamscores = [Team1.score, Team2.score]
             # This is the part where I'll try to make it possible to replay a hand.
             replay = 0
-            while not replay:
+            while lpactive and not replay:
                 try:
                     replay = input("\nReplay hand? (1 = no, 2 = yes)")
                 except:
                     lpdiscard = 999
 
             if replay == 2:
-                for team in Teams:
-                    if team.bid == 0:
-                        if team.trickscore > 2:
-                            team.score += (-2)
-                    if team.bid == 1:
-                        if team.trickscore > 2:
-                            team.score += (-1)
-                        if team.trickscore > 4:
-                            team.score += (-1)
-                    if team.bid == 2:
-                        if team.trickscore > 2:
-                            team.score += (-1)
-                        if team.trickscore > 4:
-                            team.score += (-3)
+                undo_score_round(Teams)
 
-            if max(teamscores) > 9:
+            if max(teamscores) >= POINTS_TO_WIN_GAME:
                 if lpactive:
                     print("Team " + str(teamscores.index(max(teamscores)) + 1) + " wins game " + str(game) + "!")
                 Teams[teamscores.index(max(teamscores))].gamescore += 1
@@ -298,14 +280,13 @@ def run(lpactive=False, games=200):
                 game += 1
                 if lpactive:
                     print("END OF GAME " + str(game))
-                if lpactive:
                     print(
                         "Team1 game wins = ",
                         Team1.gamescore,
                         " Team2 game wins = ",
                         Team2.gamescore
                     )
-
+    import pdb; pdb.set_trace()
     if lpactive:
         print("Team1 game wins = ", Team1.gamescore, " Team2 game wins = ", Team2.gamescore)
 

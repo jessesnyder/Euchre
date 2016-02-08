@@ -2,6 +2,14 @@ from unittest import TestCase, main
 from deck import Card
 from deck import Deck
 from deck import suits_trump_first
+from Euchre15 import run
+
+
+class TestGameRunner(TestCase):
+
+    def test_run(self):
+        result = run(games=1)
+        self.assertIn('games played', result)
 
 
 class TestCards(TestCase):
@@ -37,6 +45,23 @@ class Test_is_same_suit(TestCase):
         card = Card(suit='Hearts', position='9')
         self.assertTrue(
             card.is_same_suit(suit='Hearts', trump='Spades')
+        )
+
+
+class Test_effective_suit(TestCase):
+
+    def test_left_bauer_returns_trump_suit(self):
+        card = Card(suit='Hearts', position='Jack')
+        self.assertEqual(
+            'Diamonds',
+            card.effective_suit(trump='Diamonds')
+        )
+
+    def test_non_left_bauer_returns_own_suit(self):
+        card = Card(suit='Hearts', position='Jack')
+        self.assertEqual(
+            'Hearts',
+            card.effective_suit(trump='Spades')
         )
 
 

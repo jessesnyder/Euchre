@@ -30,6 +30,15 @@ class Card(object):
     def __eq__(self, other):
         return self.suit == other.suit and self.position == other.position
 
+    def effective_suit(self, trump):
+        """ Return a trump aware suit for this Card. Basically, the left bauer
+            returns the trump suit. All other cards return their "raw" suit.
+        """
+        if self.is_left_bauer(trump):
+            return trump
+
+        return self.suit
+
     def value(self, trump):
         """ Return a relative value for this Card. Not quite sure
             how this works.
