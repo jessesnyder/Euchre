@@ -30,7 +30,7 @@ def interactive():
             games = None
             continue
 
-    run(realplayer, games)
+    print run(realplayer, games)
 
 
 if __name__ == "__main__":

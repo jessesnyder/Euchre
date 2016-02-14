@@ -288,7 +288,3 @@ def run(lpactive=False, num_games=200):
         print(result)
 
     return result
-
-
-if __name__ == "__main__":
-    run()
