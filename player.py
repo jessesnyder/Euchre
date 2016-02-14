@@ -370,14 +370,6 @@ class Player():
     def reset_voids(self):
         self.voids = [self._suit_counter() for i in range(NUM_PLAYERS)]
 
-    def _suit_counter(self, trump=None):
-        if trump is not None:
-            suits_in_order = suits_trump_first(trump)
-        else:
-            suits_in_order = SUITS
-
-        return {suit: 0 for suit in suits_in_order}
-
     def known_void_suit_count(self, player):
         """ How many suits is another player known to be void in? """
         voids_for_player = self.voids[player.number]
@@ -392,3 +384,6 @@ class Player():
         """ Does this player know that another player is void in a given suit?
         """
         return self.voids[player.number][suit] > 0
+
+    def _suit_counter(self, trump=None):
+        return {suit: 0 for suit in suits_trump_first(trump)}

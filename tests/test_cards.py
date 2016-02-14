@@ -90,6 +90,13 @@ class TestCardsBauers(TestCase):
 
 class Testsuits_trump_first(TestCase):
 
+    def test_no_trump_returns_default_order(self):
+        order = suits_trump_first()
+        self.assertEqual(
+            ['Hearts', 'Spades', 'Diamonds', 'Clubs'],
+            order
+        )
+
     def test_hearts_as_trump(self):
         order = suits_trump_first('Hearts')
         self.assertEqual(

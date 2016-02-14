@@ -10,8 +10,11 @@ POSITIONS = ('9', '10', 'Jack', 'Queen', 'King', 'Ace')
 CARDS_PER_HAND = 5
 
 
-def suits_trump_first(trump):
+def suits_trump_first(trump=None):
     suits = list(SUITS)
+    if trump is None:
+        return suits
+
     return suits[suits.index(trump):] + suits[:suits.index(trump)]
 
 
