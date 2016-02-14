@@ -1,15 +1,6 @@
-from unittest import TestCase, main
+from unittest import TestCase
 from deck import Card
-from deck import Deck
 from deck import suits_trump_first
-from Euchre15 import run
-
-
-class TestGameRunner(TestCase):
-
-    def test_run(self):
-        result = run(num_games=1)
-        self.assertIn('game wins = 1', result)
 
 
 class TestCards(TestCase):
@@ -112,15 +103,3 @@ class Testsuits_trump_first(TestCase):
             ['Clubs', 'Hearts', 'Spades', 'Diamonds'],
             order
         )
-
-
-class TestDeck(TestCase):
-
-    def test_remove(self):
-        deck = Deck()
-        card = Card(suit="Hearts", position="Queen")
-        deck.remove(card)
-        self.assertFalse(card in deck)
-
-if __name__ == '__main__':
-    main()
