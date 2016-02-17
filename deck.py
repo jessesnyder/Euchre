@@ -1,5 +1,5 @@
 from collections import Sequence
-from random import shuffle
+from random import shuffle as r_shuffle
 
 
 CARD_VALUES = [(x, y) for x in range(4) for y in range(6)]
@@ -81,7 +81,7 @@ class Deck(Sequence):
             for suit in SUITS:
                 self._cards.append(Card(value, suit))
 
-        shuffle(self._cards)
+        self.shuffle()
 
     def __getitem__(self, index):
         return self._cards[index]
@@ -98,7 +98,11 @@ class Deck(Sequence):
         if card in self._cards:
             self._cards.remove(card)
 
-    def deal(self, players):
-        for i in range(CARDS_PER_HAND):
+    def shuffle(self):
+        """Yes, shuffle."""
+        r_shuffle(self._cards)
+
+    def deal(self, players, cards_per_hand):
+        for i in range(cards_per_hand):
             for player in players:
                 player.add_card(self.pop())

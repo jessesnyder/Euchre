@@ -1,7 +1,7 @@
 from random import randint
-from player import Player
+from game import Session
+from game import LivePlayerSession
 from liveplayer import LivePlayer
-from team import Team
 from deck import Deck
 from deck import SUITS
 from score import score_round
@@ -20,9 +20,6 @@ hands = 0
 hand = 0
 bidding_data = []
 
-# from random import shuffle
-
-BOT_PLAYER_NAMES = ['Sam', 'Kim', 'Sue', 'Tim']
 POINTS_TO_WIN_GAME = 10
 NO_BID = 999
 
@@ -34,21 +31,11 @@ def print_card(card):
 
 
 def run(lpactive=False, num_games=200):
+    """ Runs the games. """
     if lpactive:
-        Player0 = LivePlayer("You", 0)
+        session = LivePlayerSession(num_games)
     else:
-        Player0 = Player(BOT_PLAYER_NAMES[0], 0)
-    Player1 = Player(BOT_PLAYER_NAMES[1], 1)
-    Player2 = Player(BOT_PLAYER_NAMES[2], 2)
-    Player3 = Player(BOT_PLAYER_NAMES[3], 3)
-    Players = [Player0, Player1, Player2, Player3]
-
-    Team1 = Team(1, Player0, Player2)
-    Team2 = Team(2, Player1, Player3)
-
-    Team1.setopposingteam(Team2)
-    Team2.setopposingteam(Team1)
-    Teams = [Team1, Team2]
+        session = Session(num_games)
 
     # Start game.
 
@@ -151,13 +138,13 @@ def run(lpactive=False, num_games=200):
                 if isinstance(dealer, LivePlayer):
                     validdiscards = [1, 2, 3, 4, 5, 6]
                     lpdiscard = 999
-                    Player0.showhand(trump, 0)
+                    dealer.showhand(trump, 0)
                     while lpdiscard not in validdiscards:
                         try:
                             lpdiscard = input("\nWhich card do you want to discard? (1 through 6)")
                         except:
                             lpdiscard = 999
-                    del Player0.hand[lpdiscard - 1]
+                    del dealer.hand[lpdiscard - 1]
             break
         if bid_type == 0:  # round of bidding in other suits, if bid_type is still 0.
             for bidder_num in bidders:
@@ -247,7 +234,7 @@ def run(lpactive=False, num_games=200):
                 if lpactive:
                     print("\n" + current_winner.name + " wins trick!")
 
-            roundwinner = score_round(Teams)
+            roundwinner = score_round(teams)
             # End of round
             if lpactive:
                 print(roundwinner.name + " wins round!")
@@ -263,12 +250,12 @@ def run(lpactive=False, num_games=200):
                     lpdiscard = 999
 
             if replay == 2:
-                undo_score_round(Teams)
+                undo_score_round(teams)
 
             if max(teamscores) >= POINTS_TO_WIN_GAME:
                 if lpactive:
                     print("Team " + str(teamscores.index(max(teamscores)) + 1) + " wins game " + str(game) + "!")
-                Teams[teamscores.index(max(teamscores))].gamescore += 1
+                teams[teamscores.index(max(teamscores))].gamescore += 1
                 Team1.score = 0
                 Team2.score = 0
                 game += 1
