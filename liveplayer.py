@@ -6,6 +6,19 @@ class LivePlayer(Player):
     def hand_owner_label(self):
         return "\nYour hand:"
 
+    def ordered_up(self, topcard):
+        validdiscards = [1, 2, 3, 4, 5, 6]
+        lpdiscard = 999
+        self.showhand(topcard.trump, 0)
+        while lpdiscard not in validdiscards:
+            try:
+                lpdiscard = input(
+                    "\nWhich card do you want to discard? (1 through 6)"
+                )
+            except:
+                lpdiscard = 999
+        del self.hand[lpdiscard - 1]
+
     def bid(self, is_first_bidding_round, player_position):
         if is_first_bidding_round:
             trump = topcard[0]

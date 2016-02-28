@@ -1,5 +1,6 @@
 """Player class."""
 
+from bid import Bid
 from deck import SUITS
 from deck import Deck
 from deck import suits_trump_first
@@ -7,10 +8,17 @@ from deck import suits_trump_first
 NUM_PLAYERS = 4
 
 
-class Player():
+class Player(object):
+
+    lowcutR0 = 36
+    lowcutR1 = 33
+    highcutR0 = 49
+    highcutR1 = 46
+
     def __init__(self, name, number, isDealer=False):
         self.name = name
         self.number = number
+        self.partner = None
         # For each player, count occurences of each suit, I think:
         self.voids = []
         self.hand = []
@@ -61,6 +69,19 @@ class Player():
             card for card in cards
             if card.is_same_suit(suit=suit, trump=trump)
         ]
+
+    def ordered_up(self, topcard):
+        """ Find the card that hurts the hand the least and ditch it.
+            XXX Does the card that's discarded get shown to other players?
+        """
+        handbackup = self.hand[:]
+        discardvalues = []
+        for discard in range(6):
+            self.hand = handbackup[:]
+            del(self.hand[discard])
+            discardvalues.append(self.calc_handvalue(topcard.trump, 0))
+        self.hand = handbackup
+        del(self.hand[discardvalues.index(max(discardvalues))])
 
     def setpartner(self, partner):
         self.partner = partner
@@ -184,60 +205,53 @@ class Player():
         """Learn about a void suit in another player's hand."""
         self.voids[player.number][suit] = 1
 
-    def bid(self, is_first_bidding_round, player_position, topcard):
-        self.handval = 0
-        # if self.team == Team1:
-        #     lowcutR0 = 36
-        #     lowcutR1 = 33
-        #     highcutR0 = 49
-        #     highcutR1 = 46
-        # else:
-        #     lowcutR0 = 36
-        #     lowcutR1 = 33
-        #     highcutR0 = 49
-        #     highcutR1 = 46
-        lowcutR0 = 36
-        lowcutR1 = 33
-        highcutR0 = 49
-        highcutR1 = 46
-        if is_first_bidding_round:
-            trump = topcard.suit
-            self.handval = self.calc_handvalue(
+    def callPass(self):
+        return Bid(self, Bid.PASS)
+
+    def callBid(self, trump):
+        return Bid(self, Bid.BID, trump)
+
+    def callAlone(self, trump):
+        return Bid(self, Bid.ALONE, trump)
+
+    def bid_first_round(self, player_position, topcard):
+        trump = topcard.suit
+        handvalue = self.calc_handvalue(
+            trump=trump,
+            topcard=topcard,
+            is_first_bidding_round=True
+        )
+        bid = self._bid_for_handvalue(handvalue)
+
+        self.team.bid = bid
+        return bid
+
+    def bid_second_round(self, player_position, topcard):
+        possible_trumps = [suit for suit in SUITS if suit != topcard.suit]
+        trump_scores = {}
+        for trump in possible_trumps:
+            trump_scores[trump] = self.calc_handvalue(
                 trump=trump,
                 topcard=topcard,
                 is_first_bidding_round=False
             )
-            if self.handval > lowcutR0:
-                if self.handval > highcutR0:
-                    bid_type = 2
-                else:
-                    bid_type = 1
-            else:
-                bid_type = 0
-        else:
-            possible_trumps = [suit for suit in SUITS if suit != topcard.suit]
-            # del x[topcard.suit]
-            y = [0, 0, 0]
-            count = 0
-            for trump in possible_trumps:
-                y[count] = self.calc_handvalue(
-                    trump=trump,
-                    topcard=topcard,
-                    is_first_bidding_round=True
-                )
-                count += 1
-            if max(y) > lowcutR1:
-                if max(y) > highcutR1:
-                    bid_type = 2
-                else:
-                    bid_type = 1
-                trump = possible_trumps[y.index(max(y))]
-#                print(self.name+" has hand value "+str(max(y)))
-            else:
-                bid_type = 0
-        self.team.bid = bid_type
+        trump = max(trump_scores.keys(), key=(lambda k: trump_scores[k]))
+        handvalue = trump_scores[trump]
+        bid = self._bid_for_handvalue(handvalue)
 
-        return trump, bid_type
+        self.team.bid = bid
+        return bid
+
+    def _bid_for_handvalue(self, handvalue, trump=None):
+        if handvalue > self.highcutR1:
+            bid = self.callAlone(trump)
+        elif handvalue > self.lowcutR1:
+            bid = self.callBid(trump)
+        else:
+            bid = self.callPass()
+
+        return bid
+
 
     def lead(self, bidmaker, trump):
         # picks a card for leading a trick
