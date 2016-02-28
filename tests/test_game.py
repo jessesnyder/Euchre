@@ -44,6 +44,25 @@ class TestGame(TestCase):
             deck=Deck(),
         )
 
+    def test_scores_zero_before_first_round(self):
+        game = self._make_one()
+        self.assertEqual(0, game.scores[game.team1])
+        self.assertEqual(0, game.scores[game.team2])
+
+    def test_new_trickset_dealer_is_some_player(self):
+        game = self._make_one()
+        round1 = game.new_trickset()
+        self.assertIn(round1.dealer, game.players)
+
+    def test_dealer_rotates_by_round(self):
+        game = self._make_one()
+        round1 = game.new_trickset()
+        round2 = game.new_trickset()
+        self.assertNotEqual(round1.dealer, round2.dealer)
+
+
+class TestGameBidding(TestGame):
+
     def test_bidders_in_order(self):
         g = self._make_one()
         g.current_dealer = g.players[2]

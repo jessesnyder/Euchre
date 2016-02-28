@@ -4,9 +4,11 @@ from bid import Bid
 from deck import Deck
 from deck import SUITS
 from player import Player
+from trickset import Trickset
 from liveplayer import LivePlayer
 from team import Team
 from utils import group_players_as_teams
+from utils import next_in_rotation
 
 
 BOT_PLAYER_NAMES = ['Sam', 'Kim', 'Sue', 'Tim']
@@ -86,6 +88,14 @@ class Game(object):
         self.current_dealer = None
         self.current_winner = None
         self.set_new_dealer()
+
+    def new_trickset(self):
+        self.deck.shuffle()
+        self.set_new_dealer()
+        return Trickset(
+            players=self.players,
+            dealer=self.current_dealer,
+            deck=self.deck)
 
     def start_round(self):
         self.set_new_dealer()
@@ -241,5 +251,6 @@ class Game(object):
         if self.current_dealer is None:
             self.current_dealer = random.choice(self.players)
         else:
-            self.current_dealer = self.players[self.current_dealer.number + 1]
+            current_index = self.players.index(self.current_dealer)
+            self.current_dealer = next_in_rotation(self.players, current_index)
         self.current_dealer.isDealer = True
