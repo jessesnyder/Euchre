@@ -6,6 +6,8 @@ from deck import SUITS
 from player import Player
 from liveplayer import LivePlayer
 from team import Team
+from utils import group_players_as_teams
+
 
 BOT_PLAYER_NAMES = ['Sam', 'Kim', 'Sue', 'Tim']
 
@@ -73,11 +75,14 @@ class Game(object):
     _points_to_win_game = 10
     _cards_per_hand = 5
 
-    def __init__(self, teams, deck, session):
-        self.teams = teams
+    def __init__(self, players, deck):
         self.deck = deck
-        self.session = session
-        self.players = (teams[0][0], teams[1][0], teams[0][1], teams[1][1])
+        self.players = players
+        self.team1, self.team2 = group_players_as_teams(self.players)
+        self.scores = {
+            self.team1: 0,
+            self.team2: 0
+        }
         self.current_dealer = None
         self.current_winner = None
         self.set_new_dealer()

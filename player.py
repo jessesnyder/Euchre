@@ -15,9 +15,8 @@ class Player(object):
     highcutR0 = 49
     highcutR1 = 46
 
-    def __init__(self, name, number, isDealer=False):
+    def __init__(self, name, isDealer=False):
         self.name = name
-        self.number = number
         self.partner = None
         # For each player, count occurences of each suit, I think:
         self.voids = []
