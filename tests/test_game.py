@@ -35,19 +35,14 @@ class AlwaysPasses(StubBidder):
 class TestGame(TestCase):
 
     def _make_one(self):
-        t1 = Team(1, (Player('Amy', 1), Player('Andy', 3)))
-        t2 = Team(2, (Player('Barbara', 2), Player('Bob', 4)))
-        deck = Deck()
-
-        return Game(
-            teams=(t1, t2),
-            deck=deck,
-            session=None
+        players = (
+            Player("Amy"), Player("Bonnie"), Player("Andy"), Player("Bill")
         )
 
-    def test_unpacks_players(self):
-        game = self._make_one()
-        self.assertEqual(4, len(game.players))
+        return Game(
+            players=players,
+            deck=Deck(),
+        )
 
     def test_bidders_in_order(self):
         g = self._make_one()
@@ -61,9 +56,7 @@ class TestGame(TestCase):
     def test_run_bidding_1_someone_bids_returns_bid(self):
         p1 = AlwaysBids("Bidder")
         p2, p3, p4 = [AlwaysPasses("Passer " + str(i)) for i in range(3)]
-        t1 = Team(1, (p1, p2))
-        t2 = Team(2, (p3, p4))
-        g = Game(teams=(t1, t2), deck=Deck(), session=None)
+        g = Game(players=(p1, p2, p3, p4), deck=Deck())
 
         bid = g.run_bidding_round_1()
 
@@ -71,9 +64,7 @@ class TestGame(TestCase):
 
     def test_run_bidding_1_no_one_bids_returns_none(self):
         p1, p2, p3, p4 = [AlwaysPasses("Passer " + str(i)) for i in range(4)]
-        t1 = Team(1, (p1, p2))
-        t2 = Team(2, (p3, p4))
-        g = Game(teams=(t1, t2), deck=Deck(), session=None)
+        g = Game(players=(p1, p2, p3, p4), deck=Deck())
 
         bid = g.run_bidding_round_1()
 
@@ -82,9 +73,7 @@ class TestGame(TestCase):
     def test_run_bidding_2_someone_bids_returns_bid(self):
         p1 = AlwaysBids("Bidder")
         p2, p3, p4 = [AlwaysPasses("Passer " + str(i)) for i in range(3)]
-        t1 = Team(1, (p1, p2))
-        t2 = Team(2, (p3, p4))
-        g = Game(teams=(t1, t2), deck=Deck(), session=None)
+        g = Game(players=(p1, p2, p3, p4), deck=Deck())
 
         bid = g.run_bidding_round_2()
 
@@ -92,9 +81,7 @@ class TestGame(TestCase):
 
     def test_run_bidding_2_no_one_bids_returns_none(self):
         p1, p2, p3, p4 = [AlwaysPasses("Passer " + str(i)) for i in range(4)]
-        t1 = Team(1, (p1, p2))
-        t2 = Team(2, (p3, p4))
-        g = Game(teams=(t1, t2), deck=Deck(), session=None)
+        g = Game(players=(p1, p2, p3, p4), deck=Deck())
 
         bid = g.run_bidding_round_2()
 
