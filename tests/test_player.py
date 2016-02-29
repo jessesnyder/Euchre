@@ -8,7 +8,7 @@ class TestPlayerInit(TestCase):
     """ Does a Player basically work? """
 
     def test_initialization(self):
-        john = Player("John", 1)
+        john = Player("John")
         self.assertFalse(john.isDealer)
         self.assertEqual(john.handvalue, 0)
         self.assertIsNone(john.partner)
@@ -36,14 +36,13 @@ class TestBidding(TestCase):
         Card('King', 'Hearts')
     )
 
-    def _player_on_team(self):
-        john = Player("John", 1)
-        Team(1, (john, Player("Jane", 3)))
-
-        return john
+    def _player_with_partner(self):
+        p = Player("John")
+        p.setpartner(Player("Joe"))
+        return p
 
     def test_bid_first_round_with_horrible_hand_passes(self):
-        john = self._player_on_team()
+        john = self._player_with_partner()
         for card in self.bad_cards:
             john.add_card(card)
 
@@ -54,7 +53,7 @@ class TestBidding(TestCase):
         self.assertTrue(bid.is_pass)
 
     def test_bid_first_round_with_amazing_hand_goes_alone(self):
-        john = self._player_on_team()
+        john = self._player_with_partner()
         for card in self.great_cards:
             john.add_card(card)
 
@@ -65,7 +64,7 @@ class TestBidding(TestCase):
         self.assertTrue(bid.is_alone)
 
     def test_bid_second_round_with_horrible_hand_passes(self):
-        john = self._player_on_team()
+        john = self._player_with_partner()
         for card in self.bad_cards:
             john.add_card(card)
 
@@ -76,7 +75,7 @@ class TestBidding(TestCase):
         self.assertTrue(bid.is_pass)
 
     def test_bid_second_round_with_amazing_hand_goes_alone(self):
-        john = self._player_on_team()
+        john = self._player_with_partner()
         for card in self.great_cards:
             john.add_card(card)
 

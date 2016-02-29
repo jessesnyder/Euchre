@@ -222,7 +222,6 @@ class Player(object):
         )
         bid = self._bid_for_handvalue(handvalue)
 
-        self.team.bid = bid
         return bid
 
     def bid_second_round(self, player_position, topcard):
@@ -238,7 +237,6 @@ class Player(object):
         handvalue = trump_scores[trump]
         bid = self._bid_for_handvalue(handvalue)
 
-        self.team.bid = bid
         return bid
 
     def _bid_for_handvalue(self, handvalue, trump=None):
@@ -250,7 +248,6 @@ class Player(object):
             bid = self.callPass()
 
         return bid
-
 
     def lead(self, bidmaker, trump):
         # picks a card for leading a trick
