@@ -49,6 +49,14 @@ class TestGame(TestCase):
         self.assertEqual(0, game.scores[game.team1])
         self.assertEqual(0, game.scores[game.team2])
 
+    def test_update_scores_adds_trickset_scores(self):
+        game = self._make_one()
+        round1 = game.new_trickset()
+        round1.scores[game.team1] = 2
+        game.update_scores_from_trickset(round1)
+        self.assertEqual(2, game.scores[game.team1])
+        self.assertEqual(0, game.scores[game.team2])
+
     def test_new_trickset_dealer_is_some_player(self):
         game = self._make_one()
         round1 = game.new_trickset()

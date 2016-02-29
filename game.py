@@ -90,12 +90,20 @@ class Game(object):
         self.set_new_dealer()
 
     def new_trickset(self):
+        """Factory for Tricksets, which are played until the game score
+           or one team is high enough to win the game.
+        """
         self.deck.shuffle()
         self.set_new_dealer()
         return Trickset(
             players=self.players,
             dealer=self.current_dealer,
             deck=self.deck)
+
+    def update_scores_from_trickset(self, trickset):
+        """Update the game score based on a Trickset (a round or deal)."""
+        for team in (self.team1, self.team2):
+            self.scores[team] += trickset.scores[team]
 
     def start_round(self):
         self.set_new_dealer()
