@@ -1,3 +1,4 @@
+from deck import limit_to_suit
 from player import Player
 
 
@@ -88,7 +89,7 @@ class LivePlayer(Player):
                 pc = 999
             if pc in legit:
                 if tricksequence.index(self) > 0:
-                    if len(self.getsuit(leadsuit, self.hand, trump)) > 0:
+                    if len(limit_to_suit(self.hand, leadsuit, trump)) > 0:
                         if self.hand[pc - 1] == LB_local and leadsuit == trump:
                             pass
                         elif self.hand[pc - 1][0] != leadsuit and (pc in legit):

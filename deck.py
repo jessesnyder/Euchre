@@ -18,6 +18,13 @@ def suits_trump_first(trump=None):
     return suits[suits.index(trump):] + suits[:suits.index(trump)]
 
 
+def limit_to_suit(cards, suit, trump):
+    """ Return just the cards in the specified suit, including
+        the left bauer if the suit is the trump suit.
+    """
+    return tuple([card for card in cards if card.effective_suit(trump) == suit])
+
+
 class Card(object):
 
     def __init__(self, position, suit):

@@ -3,6 +3,7 @@
 from bid import Bid
 from deck import SUITS
 from deck import Deck
+from deck import limit_to_suit
 from deck import suits_trump_first
 
 NUM_PLAYERS = 4
@@ -87,6 +88,14 @@ class Player(object):
 
     def setteam(self, team):
         self.team = team
+    # If player knows, based on played cards and own hand,
+    # there's a void in a suit, this is registered as a void
+    # for all players, only known to player.
+    def check_for_exhausted_suits(self, trump):
+        for suit in SUITS:
+            if len(limit_to_suit(self.cards_unseen, suit, trump)) == 0:
+                for p2 in self.players:
+                    self.learns_void(p2, suit)
 
     def setopposingteam(self, team):
         self.opposingteam = team
@@ -261,7 +270,7 @@ class Player(object):
                 else:
                     lead_card_values[count] -= 4
                 higher = 0
-                trumps_out = self.getsuit(trump, self.cards_out, trump)
+                trumps_out = limit_to_suit(self.cards_unseen, trump, trump)
                 for card2 in trumps_out:
                     if card.value(trump) < card2.value(trump):
                         higher += 1
@@ -272,7 +281,7 @@ class Player(object):
                 lead_card_values[count] -= higher
                 # trump card value as lead increased by other trump in hand
                 lead_card_values[count] += (
-                    len(self.getsuit(trump, self.hand, trump)) - 1
+                    len(limit_to_suit(self.hand, trump, trump)) - 1
                 )
                 # trump card value as lead descreased by voids in hand
                 # (missed opportunity to trump opponents' high off-suit cards)
@@ -282,7 +291,7 @@ class Player(object):
             else:
                 lower = 0
                 higher = 0
-                for card2 in self.getsuit(card.suit, self.cards_out, trump):
+                for card2 in limit_to_suit(self.cards_unseen, card.suit, trump):
                     if card.value(trump) < card2.value(trump):
                         higher += 1
                     else:
@@ -304,17 +313,19 @@ class Player(object):
                             # player in opposing team has void, and could possibly trump
                             lead_card_values[count] -= 1
 
-                if len(self.getsuit(card.suit, self.hand, trump)) == 1 and len(self.getsuit(trump, self.hand, trump)) > 0:
+                if len(limit_to_suit(self.hand, card.suit, trump)) == 1 \
+                   and len(limit_to_suit(self.hand, trump, trump)) > 0:
                     lead_card_values[count] += 1  # could create a void in own hand,  then trump
                 count += 1
         leadcard = self.hand[lead_card_values.index(max(lead_card_values))]
         return leadcard  # NOTE-If highest value is found in more than one card,  the first card in hand will be chosen.
 
-    def follow(self, current_winner, leadsuit, trump, tricksequence, played_cards, played_cards_values):
+    def follow(self, current_winner, leadsuit, trump, tricksequence, played_cards):
         """ We do want to track the winner, not the leader.... Must fix this."""
         follow_card_values = []
-        validcards = self.getsuit(leadsuit, self.hand, trump)
-        trumpcards = self.getsuit(trump, self.hand, trump)
+        played_cards_values = [card.value(trump) for card in played_cards]
+        validcards = limit_to_suit(self.hand, leadsuit, trump)
+        trumpcards = limit_to_suit(self.hand, trump, trump)
         validcardvalues = []
         trumpcardvalues = []
         for validcard in validcards:
@@ -330,7 +341,7 @@ class Player(object):
         if validcards:
             if current_winner == self.partner:  # If your partner is winning....
                 partnercard = played_cards[tricksequence.index(self.partner)]
-                for card in self.getsuit(leadsuit, self.cards_out, trump):
+                for card in limit_to_suit(self.cards_unseen, leadsuit, trump):
                     if card.value(trump) > partnercard.value(trump): # And there's a within-suit card still out that's higher than partner's.
                         # NOTE: This will sometimes lead to playing a higher card than necessary--if in last position,  will play highest card even when a lower might be sure to win; and if partner is just one step below.
                         if highcard.value(trump) > partnercard.value(trump):
@@ -346,7 +357,7 @@ class Player(object):
         elif trumpcards:
             if current_winner == self.partner:  # If your partner is winning....
                 partnercard = played_cards[tricksequence.index(self.partner)]
-                for card in self.getsuit(leadsuit, self.cards_out, trump):
+                for card in limit_to_suit(self.cards_unseen, leadsuit, trump):
                     if card.value(trump) > partnercard.value(trump):
                         if lowtrump.value(trump) > partnercard.value(trump):
                             return lowtrump  # ... and could lose to other in-suit card,  then play my lowest trump card,  if it beats partner's.
@@ -361,9 +372,9 @@ class Player(object):
 
         # If this point reached,  cannot win trick. Play lowest card.
         for card in self.hand:
-                follow_card_values.append(card.value(trump))
-                if self.getsuit(card.suit, self.hand, trump) == 1:
-                    follow_card_values[len(follow_card_values)] -= 4
+            follow_card_values.append(card.value(trump))
+            if len(limit_to_suit(self.hand, card.suit, trump)) == 1:
+                follow_card_values[-1] -= 4
         followcard = self.hand[follow_card_values.index(min(follow_card_values))]
         return followcard
 
