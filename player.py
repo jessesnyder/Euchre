@@ -335,15 +335,6 @@ class Player(object):
         followcard = self.hand[follow_card_values.index(min(follow_card_values))]
         return followcard
 
-    def play(self, current_winner, leadsuit, trump, tricksequence, played_cards, played_card_values):
-        if tricksequence.index(self) == 0:
-            play_card = self.lead(trump=trump, bidmaker=self)
-        else:
-            play_card = self.follow(
-                current_winner, leadsuit, trump, tricksequence, played_cards, played_card_values
-            )
-        del self.hand[self.hand.index(play_card)]
-        return play_card
 
     def learns_void(self, player, suit):
         """Learn about a void suit in another player's hand."""
