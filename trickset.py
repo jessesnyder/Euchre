@@ -75,6 +75,7 @@ class Trickset(object):
     def leader(self):
         return self.trick_sequence()[0]
 
+    @property
     def followers(self):
         return self.trick_sequence()[1:]
 
@@ -88,7 +89,7 @@ class Trickset(object):
         lead_card = self.recorded_card(self.leader.lead(bid=self.bid))
         lead_suit = lead_card.effective_suit(trump)
         played_cards_values = []
-        for player in self.followers():
+        for player in self.followers:
             played_card = self.recorded_card(player.follow(
                 current_winner=self.leader,
                 leadsuit=lead_suit,
