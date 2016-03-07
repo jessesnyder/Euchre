@@ -1,6 +1,6 @@
 from unittest import TestCase
 from player import Player
-from team import Team
+from bid import Bid
 from deck import Card
 
 
@@ -130,3 +130,12 @@ class TestBidding(TestCase):
         )
 
         self.assertTrue(bid.is_alone)
+
+    def test_lead_removes_card_from_hand(self):
+        john = self._player_with_partner()
+        for card in self.great_cards:
+            john.add_card(card)
+
+        john.lead(bid=Bid.a_bid(player=john, trump='Hearts'))
+
+        self.assertTrue(len(john.hand) < len(self.great_cards))

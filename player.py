@@ -275,7 +275,8 @@ class Player(object):
                     lead_card_values[count] += 1  # could create a void in own hand,  then trump
                 count += 1
         leadcard = self.hand[lead_card_values.index(max(lead_card_values))]
-        return leadcard  # NOTE-If highest value is found in more than one card,  the first card in hand will be chosen.
+
+        return self._played_card(leadcard)
 
     def follow(self, current_winner, leadsuit, trump, tricksequence, played_cards):
         """ We do want to track the winner, not the leader.... Must fix this."""
@@ -333,8 +334,8 @@ class Player(object):
             if len(limit_to_suit(self.hand, card.suit, trump)) == 1:
                 follow_card_values[-1] -= 4
         followcard = self.hand[follow_card_values.index(min(follow_card_values))]
-        return followcard
 
+        return self._played_card(followcard)
 
     def learns_void(self, player, suit):
         """Learn about a void suit in another player's hand."""
@@ -364,6 +365,15 @@ class Player(object):
         if player not in self.voids:
             return False
         return self.voids[player][suit] > 0
+
+    def _played_card(self, card):
+        """Remove card from hand and return it.
+
+           XXX moving to a played_cards attribute might help support
+           optional hand replay?
+        """
+        self.hand.remove(card)
+        return card
 
     def _suit_counter(self, trump=None):
         return {suit: 0 for suit in suits_trump_first(trump)}
