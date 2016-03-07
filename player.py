@@ -19,7 +19,7 @@ class Player(object):
     def __init__(self, name, isDealer=False):
         self.name = name
         self.partner = None
-        self.opposingteam = None
+        self.opposingteam = []
         self.voids = {}
         self.hand = []
         self.handbu = []
