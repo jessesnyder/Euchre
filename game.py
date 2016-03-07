@@ -1,73 +1,12 @@
 """Class Game."""
 from collections import namedtuple
 import random
-from deck import Deck
-from player import Player
 from trickset import Trickset
-from liveplayer import LivePlayer
-from team import Team
 from utils import group_players_as_teams
 from utils import next_in_rotation
 
 
 BOT_PLAYER_NAMES = ['Sam', 'Kim', 'Sue', 'Tim']
-
-
-class Session(object):
-    """State and actions for a set of games"""
-
-    def __init__(self, num_games):
-        self.num_games = num_games
-        self.players = self._build_players()
-        self.teams = self._build_teams()
-        self.deck = Deck()
-
-    def _build_players(self):
-        p0 = self._player0()
-        p1 = Player(BOT_PLAYER_NAMES[1], 1)
-        p2 = Player(BOT_PLAYER_NAMES[2], 2)
-        p3 = Player(BOT_PLAYER_NAMES[3], 3)
-
-        return (p0, p1, p2, p3)
-
-    def _build_teams(self):
-        team1 = Team(1, players=(self.players[0], self.players[2]))
-        team2 = Team(2, players=(self.players[1], self.players[3]))
-
-        team1.setopposingteam(team2)
-        team2.setopposingteam(team1)
-
-        return (team1, team2)
-
-    def _player0(self):
-        return Player(BOT_PLAYER_NAMES[0], 0)
-
-    @property
-    def games(self):
-        for i in range(self.num_games):
-            yield Game(self.teams, self.players, self.deck, self)
-
-    def start(self):
-        pass
-
-    def output(self, string):
-        pass
-
-
-class LivePlayerSession(Session):
-    """Interactive session with a live player"""
-
-    liveplayer = None
-
-    def __init__(self, num_games):
-        super(LivePlayerSession, self).__init__(num_games)
-        self.liveplayer = self.players[0]
-
-    def start(self):
-        print("Your partner is {0}.".format(self.liveplayer.partner.name))
-
-    def _player0(self):
-        return LivePlayer("You", 0)
 
 
 GameResult = namedtuple("GameResult", "scores")
