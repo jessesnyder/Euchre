@@ -1,7 +1,10 @@
 """Class Session."""
-from deck import Deck
+from collections import namedtuple
 from game import Game
 from utils import group_players_as_teams
+
+
+SessionResult = namedtuple("SessionResult", "winner scores")
 
 
 class Session(object):
@@ -21,18 +24,17 @@ class Session(object):
             self.team1: 0,
             self.team2: 0
         }
-        self._set_partners(self.team1)
-        self._set_partners(self.team2)
 
-    def increment_game_scores(self, game):
+    def update_results(self, game_result):
         """Add to the winning team's total."""
-        winner = max(game.scores, key=game.scores.get)
+        winner = max(game_result.scores, key=game_result.scores.get)
         self.gamescores[winner] += 1
 
     def new_game(self):
         """Factory for games using these players/teams"""
-        return Game(players=self.players, deck=Deck())
+        return Game(players=self.players)
 
-    def _set_partners(self, team):
-        team[0].setpartner(team[1])
-        team[1].setpartner(team[0])
+    @property
+    def result(self):
+        winner = max(self.gamescores, key=self.gamescores.get)
+        return SessionResult(winner=winner, scores=self.gamescores.copy())

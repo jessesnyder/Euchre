@@ -31,7 +31,22 @@ class TestSession(TestCase):
         game.scores[session.team1] = 10
         game.scores[session.team2] = 8
 
-        session.increment_game_scores(game)
+        session.update_results(game.result())
 
         self.assertEqual(session.gamescores[session.team1], 1)
         self.assertEqual(session.gamescores[session.team2], 0)
+
+    def test_full_stack(self):
+        players = (
+            Player("Amy"), Player("Bonnie"), Player("Andy"), Player("Bill")
+        )
+        session = Session(players=players)
+        game = session.new_game()
+        while not game.over:
+            trickset = game.new_trickset()
+            result = trickset.run()
+            game.update_results(result)
+
+        session.update_results(game.result())
+
+        self.assertIn(session.result.winner[0], players)
