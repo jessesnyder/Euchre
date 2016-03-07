@@ -4,7 +4,7 @@ from team import Team
 from deck import Card
 
 
-class TestPlayerInit(TestCase):
+class TestPlayer(TestCase):
     """ Does a Player basically work? """
 
     def test_initialization(self):
@@ -13,6 +13,53 @@ class TestPlayerInit(TestCase):
         self.assertEqual(john.handvalue, 0)
         self.assertIsNone(john.partner)
         self.assertEqual(john.name, "John")
+
+    def test_known_void_suit_count_zero_by_default(self):
+        john = Player("John")
+        mary = Player("Mary")
+
+        self.assertEqual(0, john.known_void_suit_count(mary))
+
+    def test_known_void_suit_totals_voids(self):
+        john = Player("John")
+        mary = Player("Mary")
+        john.learns_void(mary, 'Hearts')
+        john.learns_void(mary, 'Spades')
+
+        self.assertEqual(2, john.known_void_suit_count(mary))
+
+    def test_known_to_have_voids_returns_false_by_default(self):
+        john = Player("John")
+        mary = Player("Mary")
+
+        self.assertFalse(john.known_to_have_voids(mary))
+
+    def test_known_to_have_voids_returns_true_after_learning_void(self):
+        john = Player("John")
+        mary = Player("Mary")
+        john.learns_void(mary, 'Hearts')
+
+        self.assertTrue(john.known_to_have_voids(mary))
+
+    def test_known_to_be_void_in_returns_false_by_default(self):
+        john = Player("John")
+        mary = Player("Mary")
+
+        self.assertFalse(john.known_to_be_void_in(mary, 'Hearts'))
+
+    def test_known_to_be_void_in_returns_true_after_learning_void(self):
+        john = Player("John")
+        mary = Player("Mary")
+        john.learns_void(mary, 'Hearts')
+
+        self.assertTrue(john.known_to_be_void_in(mary, 'Hearts'))
+
+    def test_known_to_be_void_in_examines_suit(self):
+        john = Player("John")
+        mary = Player("Mary")
+        john.learns_void(mary, 'Hearts')
+
+        self.assertFalse(john.known_to_be_void_in(mary, 'Spades'))
 
 
 class TestBidding(TestCase):
@@ -38,7 +85,7 @@ class TestBidding(TestCase):
 
     def _player_with_partner(self):
         p = Player("John")
-        p.setpartner(Player("Joe"))
+        p.partner = Player("Joe")
         return p
 
     def test_bid_first_round_with_horrible_hand_passes(self):

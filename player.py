@@ -19,14 +19,14 @@ class Player(object):
     def __init__(self, name, isDealer=False):
         self.name = name
         self.partner = None
-        # For each player, count occurences of each suit, I think:
-        self.voids = []
+        self.opposingteam = None
+        self.voids = {}
         self.hand = []
         self.handvalue = 0
         self.handbu = []
         self.isDealer = isDealer
         self.reset_voids()
-        self.cards_out = Deck()  # all players count cards
+        self.cards_unseen = Deck()  # all players count cards
 
     def __repr__(self):
         partner = "(no partner)"
@@ -39,36 +39,7 @@ class Player(object):
 
     def add_card(self, card):
         self.hand.append(card)
-        self.updatecards_out(card)
-
-    # def getcards(self):
-    #     self.hand = []
-    #     # if replay == 2:
-    #     #     self.hand = self.handbu[:]
-    #     #     self.cards_out = self.cards_outbu[:]
-    #     # else:
-    #     #     for card in range(5):
-    #     #         self.hand.append(shuffledcards.pop())
-    #     #         self.cards_out = card_values[:]
-    #     #     for card in self.hand:
-    #     #         del self.cards_out[self.cards_out.index(card)]
-    #     for card in range(5):
-    #         self.hand.append(shuffledcards.pop())
-    #         self.cards_out = card_values[:]
-    #     for card in self.hand:
-    #         del self.cards_out[self.cards_out.index(card)]
-
-    #     self.handbu = self.hand[:]
-    #     self.cards_outbu=self.cards_out[:]
-
-    def getsuit(self, suit, cards, trump):
-        """ Return just the cards in the specified suit, including
-            the left bauer if the suit is the trump suit.
-        """
-        return [
-            card for card in cards
-            if card.is_same_suit(suit=suit, trump=trump)
-        ]
+        self.sees_card(card)
 
     def ordered_up(self, topcard):
         """ Find the card that hurts the hand the least and ditch it.
@@ -83,11 +54,10 @@ class Player(object):
         self.hand = handbackup
         del(self.hand[discardvalues.index(max(discardvalues))])
 
-    def setpartner(self, partner):
-        self.partner = partner
+    def sees_card(self, card):
+        self.cards_unseen.remove(card)
 
-    def setteam(self, team):
-        self.team = team
+
     # If player knows, based on played cards and own hand,
     # there's a void in a suit, this is registered as a void
     # for all players, only known to player.
@@ -97,20 +67,10 @@ class Player(object):
                 for p2 in self.players:
                     self.learns_void(p2, suit)
 
-    def setopposingteam(self, team):
-        self.opposingteam = team
 
-    def updatecards_out(self, card):
-        self.cards_out.remove(card)
 
     def getcardvalues(self, trump):
-        self.cardvalues = []
-        if replay == 2:
-            self.cardvalues = self.handbu[:]
-        else:
-            for card in self.hand:
-                self.cardvalues.append(card.value(trump))
-        return self.cardvalues
+        return (card.value(trump) for card in self.hand)
 
     def calc_handvalue(self, trump, topcard=None, is_first_bidding_round=False):
         'Totals up hand value based on particular assumption of trump.'
@@ -209,10 +169,6 @@ class Player(object):
                 print("\n" + suitlabels[card[0]] + ": " + positionlabels[card[1]]),  #, end = ''
         print("\n")
 
-    def learns_void(self, player, suit):
-        """Learn about a void suit in another player's hand."""
-        self.voids[player.number][suit] = 1
-
     def callPass(self):
         return Bid(self, Bid.PASS)
 
@@ -229,7 +185,7 @@ class Player(object):
             topcard=topcard,
             is_first_bidding_round=True
         )
-        bid = self._bid_for_handvalue(handvalue)
+        bid = self._bid_for_handvalue(handvalue, trump)
 
         return bid
 
@@ -244,11 +200,11 @@ class Player(object):
             )
         trump = max(trump_scores.keys(), key=(lambda k: trump_scores[k]))
         handvalue = trump_scores[trump]
-        bid = self._bid_for_handvalue(handvalue)
+        bid = self._bid_for_handvalue(handvalue, trump)
 
         return bid
 
-    def _bid_for_handvalue(self, handvalue, trump=None):
+    def _bid_for_handvalue(self, handvalue, trump):
         if handvalue > self.highcutR1:
             bid = self.callAlone(trump)
         elif handvalue > self.lowcutR1:
@@ -258,10 +214,12 @@ class Player(object):
 
         return bid
 
-    def lead(self, bidmaker, trump):
+    def lead(self, bid):
         # picks a card for leading a trick
         lead_card_values = [0] * len(self.hand)
         count = 0
+        trump = bid.trump
+        bidmaker = bid.player
         for card in self.hand:
             # This section to determine value of leading with trump cards.
             if card.effective_suit(trump) == trump:
@@ -388,12 +346,21 @@ class Player(object):
         del self.hand[self.hand.index(play_card)]
         return play_card
 
+    def learns_void(self, player, suit):
+        """Learn about a void suit in another player's hand."""
+        if player not in self.voids:
+            self.voids[player] = self._suit_counter()
+        self.voids[player][suit] = 1
+
     def reset_voids(self):
-        self.voids = [self._suit_counter() for i in range(NUM_PLAYERS)]
+        self.voids = {}
 
     def known_void_suit_count(self, player):
         """ How many suits is another player known to be void in? """
-        voids_for_player = self.voids[player.number]
+        if player not in self.voids:
+            return 0
+
+        voids_for_player = self.voids[player]
 
         return sum(voids_for_player.values())
 
@@ -404,7 +371,9 @@ class Player(object):
     def known_to_be_void_in(self, player, suit):
         """ Does this player know that another player is void in a given suit?
         """
-        return self.voids[player.number][suit] > 0
+        if player not in self.voids:
+            return False
+        return self.voids[player][suit] > 0
 
     def _suit_counter(self, trump=None):
         return {suit: 0 for suit in suits_trump_first(trump)}
