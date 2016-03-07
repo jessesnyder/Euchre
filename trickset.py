@@ -1,5 +1,7 @@
 """Class Trickset."""
 from utils import group_players_as_teams
+from deck import Deck
+from deck import SUITS
 
 
 class Trickset(object):
@@ -14,6 +16,12 @@ class Trickset(object):
             self.team1: 0,
             self.team2: 0
         }
+    def deal(self):
+        self.deck = Deck()
+        for i in range(self.CARDS_PER_HAND):
+            for p in self.players:
+                p.add_card(self.deck.pop())
+
 
     @property
     def bidders_in_order(self):

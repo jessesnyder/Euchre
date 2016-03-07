@@ -97,7 +97,6 @@ class Deck(Sequence):
         return len(self._cards)
 
     def pop(self):
-        """ Remove the top card """
         return self._cards.pop()
 
     def remove(self, card):
@@ -108,8 +107,3 @@ class Deck(Sequence):
     def shuffle(self):
         """Yes, shuffle."""
         r_shuffle(self._cards)
-
-    def deal(self, players, cards_per_hand):
-        for i in range(cards_per_hand):
-            for player in players:
-                player.add_card(self.pop())
