@@ -61,12 +61,11 @@ class Player(object):
     # there's a void in a suit, this is registered as a void
     # for all players, only known to player.
     def check_for_exhausted_suits(self, trump):
+        """XXX Work in progress..."""
         for suit in SUITS:
             if len(limit_to_suit(self.cards_unseen, suit, trump)) == 0:
                 for p2 in self.players:
                     self.learns_void(p2, suit)
-
-
 
     def getcardvalues(self, trump):
         return (card.value(trump) for card in self.hand)
@@ -274,12 +273,14 @@ class Player(object):
                    and len(limit_to_suit(self.hand, trump, trump)) > 0:
                     lead_card_values[count] += 1  # could create a void in own hand,  then trump
                 count += 1
+        # NOTE-If highest value is found in more than one card,
+        # the first card in hand will be chosen.
         leadcard = self.hand[lead_card_values.index(max(lead_card_values))]
 
         return self._played_card(leadcard)
 
     def follow(self, current_winner, leadsuit, trump, tricksequence, played_cards):
-        """ We do want to track the winner, not the leader.... Must fix this."""
+        """Return the card judged to be best."""
         follow_card_values = []
         played_cards_values = [card.value(trump) for card in played_cards]
         validcards = limit_to_suit(self.hand, leadsuit, trump)
