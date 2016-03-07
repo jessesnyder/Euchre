@@ -1,7 +1,6 @@
 from unittest import TestCase
 from player import Player
 from game import Game
-from deck import Deck
 
 
 class TestGame(TestCase):
@@ -11,21 +10,18 @@ class TestGame(TestCase):
             Player("Amy"), Player("Bonnie"), Player("Andy"), Player("Bill")
         )
 
-        return Game(
-            players=players,
-            deck=Deck(),
-        )
+        return Game(players=players)
 
     def test_scores_zero_before_first_round(self):
         game = self._make_one()
         self.assertEqual(0, game.scores[game.team1])
         self.assertEqual(0, game.scores[game.team2])
 
-    def test_update_scores_adds_trickset_scores(self):
+    def test_update_results_adds_trickset_scores(self):
         game = self._make_one()
         round1 = game.new_trickset()
         round1.scores[game.team1] = 2
-        game.update_scores_from_trickset(round1)
+        game.update_results(round1)
         self.assertEqual(2, game.scores[game.team1])
         self.assertEqual(0, game.scores[game.team2])
 
