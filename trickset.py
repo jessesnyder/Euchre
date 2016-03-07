@@ -27,9 +27,7 @@ class Trickset(object):
             self.team1: 0,
             self.team2: 0
         }
-        self.current_leader = self.bidders_in_order[0]
         self.bid = None
-        self.tricksequence = self.bidders_in_order
         self.played_cards = []
 
     def run(self):
