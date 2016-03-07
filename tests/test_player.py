@@ -10,7 +10,6 @@ class TestPlayer(TestCase):
     def test_initialization(self):
         john = Player("John")
         self.assertFalse(john.isDealer)
-        self.assertEqual(john.handvalue, 0)
         self.assertIsNone(john.partner)
         self.assertEqual(john.name, "John")
 
