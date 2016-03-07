@@ -22,7 +22,6 @@ class Player(object):
         self.opposingteam = None
         self.voids = {}
         self.hand = []
-        self.handvalue = 0
         self.handbu = []
         self.isDealer = isDealer
         self.reset_voids()
@@ -74,7 +73,7 @@ class Player(object):
 
     def calc_handvalue(self, trump, topcard=None, is_first_bidding_round=False):
         'Totals up hand value based on particular assumption of trump.'
-        self.handvalue = 0
+        handvalue = 0
         trial_hand = self.hand[:]
         if is_first_bidding_round and self.isDealer:
             trial_hand.append(topcard)
@@ -94,26 +93,26 @@ class Player(object):
         if len(trial_hand) == 6:
             del trial_hand[discardvalues.index(min(discardvalues))]
         for card in trial_hand:
-            self.handvalue += card.value(trump)
+            handvalue += card.value(trump)
             if card.raw_value < 5 and card.raw_value > 0:
                 # reduces value of 10 through King for bidding purposes
-                self.handvalue -= 1
+                handvalue -= 1
         has_trumps = suitcounts[trump] > 0
         if has_trumps:
             for suit in SUITS:
                 if suitcounts[suit] == 0 and not suit == trump:
-                    self.handvalue += 6
+                    handvalue += 6
         if is_first_bidding_round:
             if self.partner.isDealer:
                 # Extra points for adding up-card to hand or to partner's hand.
-                self.handvalue += topcard.value(trump) + 3
+                handvalue += topcard.value(trump) + 3
             # Negative points for adding up-card to opposing team's hand,
             # plus extra penalty (3) for possibility they'll create a void.
             # XXX This seems to just check if my partner is the dealer again?
             # if self.opposingteam == dealer.opposingteam:
-            #     self.handvalue -= topcard.value(trump) + 3)
+            #     handvalue -= topcard.value(trump) + 3)
 
-        return self.handvalue
+        return handvalue
 
     def hand_owner_label(self):
         return "\n{0}'s hand:".format(self.name)
