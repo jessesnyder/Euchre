@@ -37,6 +37,13 @@ class Card(object):
             self.__class__.__name__, self.position, self.suit
         )
 
+    def __hash__(self):
+        suit_position = SUITS.index(self.suit) + 1
+        rank_position = POSITIONS.index(self.position) + 1
+        as_single_int = int("{0}{1}".format(suit_position, rank_position))
+
+        return as_single_int
+
     def __eq__(self, other):
         return self.suit == other.suit and self.position == other.position
 

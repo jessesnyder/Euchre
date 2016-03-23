@@ -1,5 +1,5 @@
 from random import randint
-from game import Session
+from session import Session
 from game import LivePlayerSession
 from liveplayer import LivePlayer
 from deck import Deck
