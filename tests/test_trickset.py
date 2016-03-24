@@ -48,7 +48,7 @@ class TricksetTest(TestCase):
         t = Trickset(players=players, dealer=players[2])
         t.deal()
         hands = [p.hand for p in players]
-        for hand in [p.hand for p in players]:
+        for hand in hands:
             otherhands = [h for h in hands if h is not hand]
             for card in hand:
                 for otherhand in otherhands:
