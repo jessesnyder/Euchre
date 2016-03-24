@@ -8,9 +8,7 @@ from trickset import Trickset
 
 
 class StubBidder(Player):
-
-    def __init__(self, name):
-        super(StubBidder, self).__init__(name, 1)
+    pass
 
 
 class AlwaysBids(StubBidder):
