@@ -49,14 +49,14 @@ class TricksetTest(TestCase):
         )
         t = Trickset(players=players, dealer=players[2])
         t.deal()
-        hands = [set(p.hand) for p in players]
-        for hand in hands:
-            others = [h for h in hands if h is not hand]
-            for other in others:
-                self.assertTrue(
-                    hand.isdisjoint(other),
-                    "hands had some of the same cards!"
-                )
+        hands = [p.hand for p in players]
+        for hand in [p.hand for p in players]:
+            otherhands = [h for h in hands if h is not hand]
+            for card in hand:
+                for otherhand in otherhands:
+                    self.assertNotIn(
+                        card, otherhand, "hands had some of the same cards!"
+                    )
 
     def test_bidders_in_order(self):
         players = (
