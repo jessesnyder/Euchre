@@ -163,7 +163,6 @@ class Player:
                 )  # Negative points for adding up-card to opposing team's hand, plus extra penalty (3) for possibility they'll create a void.
         return self.handvalue
 
-    def showhand(self, trump_local, bidding_round):
         if isinstance(self, LivePlayer):
             print("\nYour hand:")
         else:
@@ -219,10 +218,10 @@ class Player:
                 if not card == self.hand[0]:
                     print(","),  # ,end=''
                 print(
-                    positionlabels[card[1]]
-                    + (
-                        (" of " + suitlabels[card[0]] + " [left bauer]")
-                        * (card == LB_local)
+                    positionlabels[card[1]] +
+                    (
+                        (" of " + suitlabels[card[0]] + " [left bauer]") *
+                        (card == LB_local)
                     )
                 ),  # ,end=''
             else:
@@ -329,8 +328,8 @@ class Player:
                         count
                     ] -= 1  # Of cards in same suit that are still out there, more are higher than lower.
                 if (
-                    sum(self.voids[self.partner.number]) > 0
-                    and self.voids[self.partner.number][trump_local] == 0
+                    sum(self.voids[self.partner.number]) > 0 and
+                    self.voids[self.partner.number][trump_local] == 0
                 ):
                     lead_card_values[count] += 2  # My partner could trump in.
                 if self.voids[self.opposingteam.playerA.number][card[0]] == 1:
@@ -352,8 +351,8 @@ class Player:
                             count
                         ] -= 1  # player in opposing team has void, could possibly trump
                 if (
-                    len(self.getsuit(card[0], self.hand, trump_local)) == 1
-                    and len(self.getsuit(trump_local, self.hand, trump_local)) > 0
+                    len(self.getsuit(card[0], self.hand, trump_local)) == 1 and
+                    len(self.getsuit(trump_local, self.hand, trump_local)) > 0
                 ):
                     lead_card_values[
                         count
@@ -694,12 +693,12 @@ while game < games:
                 action = " picks "
             if lpactive:
                 print(
-                    Players[bidder_num].name
-                    + action
-                    + "up "
-                    + labelcard(topcard[0], topcard[1])
-                    + (". Going alone" * alone)
-                    + "."
+                    Players[bidder_num].name +
+                    action +
+                    "up " +
+                    labelcard(topcard[0], topcard[1]) +
+                    (". Going alone" * alone) +
+                    "."
                 )
             if isinstance(Players[dealer_num], LivePlayer):
                 validdiscards = [1, 2, 3, 4, 5, 6]
@@ -732,11 +731,11 @@ while game < games:
                     alone = 1
                 if lpactive:
                     print(
-                        Players[bidder_num].name
-                        + " bids "
-                        + suitlabels[trump]
-                        + (" alone" * alone)
-                        + "."
+                        Players[bidder_num].name +
+                        " bids " +
+                        suitlabels[trump] +
+                        (" alone" * alone) +
+                        "."
                     )
                 break
     if bid_type == 0:
@@ -773,10 +772,10 @@ while game < games:
                         leadsuit = trump
                 if lpactive:
                     print(
-                        player.name
-                        + " plays "
-                        + labelcard(played_card[0], played_card[1])
-                        + "."
+                        player.name +
+                        " plays " +
+                        labelcard(played_card[0], played_card[1]) +
+                        "."
                     )
                 played_cards.append(played_card)
                 if not (played_card[0]) == leadsuit:
@@ -834,17 +833,17 @@ while game < games:
             print(roundwinner.name + " wins round!")
         if lpactive:
             print(
-                "Team 1 score: "
-                + str(Team1.score)
-                + "; Team 2 score: "
-                + str(Team2.score)
+                "Team 1 score: " +
+                str(Team1.score) +
+                "; Team 2 score: " +
+                str(Team2.score)
             )
         if lpactive:
             print(
-                "Team 1 trick count:"
-                + str(Team1.trickscore)
-                + "; Team 2 trick count: "
-                + str(Team2.trickscore)
+                "Team 1 trick count:" +
+                str(Team1.trickscore) +
+                "; Team 2 trick count: " +
+                str(Team2.trickscore)
             )
         teamscores = [Team1.score, Team2.score]
         # This is the part where I'll try to make it possible to replay a hand.
@@ -873,11 +872,11 @@ while game < games:
         if max(teamscores) > 9:
             if lpactive:
                 print(
-                    "Team "
-                    + str(teamscores.index(max(teamscores)) + 1)
-                    + " wins game "
-                    + str(game)
-                    + "!"
+                    "Team " +
+                    str(teamscores.index(max(teamscores)) + 1) +
+                    " wins game " +
+                    str(game) +
+                    "!"
                 )
             Teams[teamscores.index(max(teamscores))].gamescore += 1
             Team1.score = 0
