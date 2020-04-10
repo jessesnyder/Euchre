@@ -488,8 +488,8 @@ class LivePlayer(Player):
             bid_type = 999
             while bid_type not in validbids:
                 try:
-                    bid_type = input("\nDo you want to bid? (0=no; 1=yes; 2=go alone)")
-                except Exception:
+                    bid_type = int(input("\nDo you want to bid? (0=no; 1=yes; 2=go alone)"))
+                except ValueError:
                     bid_type = 999
             if bid_type > 0:
                 validtrump = [0, 1, 2, 3]
@@ -497,10 +497,10 @@ class LivePlayer(Player):
                 del validtrump[topcard[0]]
                 while trump not in validtrump:
                     try:
-                        trump = input(
+                        trump = int(input(
                             "Which suit? (hearts=0, spades=1, diamonds=2, clubs=3)"
-                        )
-                    except Exception:
+                        ))
+                    except ValueError:
                         trump = 999
                     if trump == topcard[0]:
                         print("You cannot bid " + suitlabels[topcard[0]] + ".")
@@ -707,10 +707,10 @@ while game < games:
                 Player0.showhand(trump, 0)
                 while lpdiscard not in validdiscards:
                     try:
-                        lpdiscard = input(
+                        lpdiscard = int(input(
                             "\nWhich card do you want to discard? (1 through 6)"
-                        )
-                    except Exception:
+                        ))
+                    except ValueError:
                         lpdiscard = 999
                 del Player0.hand[lpdiscard - 1]
         break
