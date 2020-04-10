@@ -163,6 +163,7 @@ class Player:
                 )  # Negative points for adding up-card to opposing team's hand, plus extra penalty (3) for possibility they'll create a void.
         return self.handvalue
 
+    def showhand(self, trump_local, bidding_round):
         if isinstance(self, LivePlayer):
             print("\nYour hand:")
         else:
@@ -462,8 +463,8 @@ class LivePlayer(Player):
             bid_type = 999
             while bid_type not in validbids:
                 try:
-                    bid_type = input("\nDo you want to bid? (0=no; 1=yes; 2=go alone)")
-                except Exception:
+                    bid_type = int(input("\nDo you want to bid? (0=no; 1=yes; 2=go alone)"))
+                except ValueError:
                     bid_type = 999
             if bid_type == 88:
                 Teams[0].score += 10
@@ -538,8 +539,8 @@ class LivePlayer(Player):
         LB_local = (trumplist[2], 2)
         while pc not in legit:
             try:
-                pc = input("Which card? (1 through " + str(len(self.hand)) + "): ")
-            except Exception:
+                pc = int(input("Which card? (1 through " + str(len(self.hand)) + "): "))
+            except ValueError:
                 pc = 999
             if pc in legit:
                 if tricksequence.index(self) > 0:
