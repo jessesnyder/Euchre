@@ -25,7 +25,6 @@ game = 0
 leadsuit = -1
 lpactive = 0  # By default, there's no live player.
 bidding_round = 0  # NOTE: With respect to the function showhand, bidding_round just serves to distinguish between when trump is known (0) and when it isn't (1).
-replay = 1  # 1 == "no"
 topcard = []
 
 from random import shuffle
@@ -65,15 +64,11 @@ class Player:
 
     def getcards(self):
         self.hand = []
-        if replay == 2:
-            self.hand = self.handbu[:]
-            self.cards_out = self.cards_outbu[:]
-        else:
-            for card in range(5):
-                self.hand.append(shuffledcards.pop())
-                self.cards_out = card_values[:]
-            for card in self.hand:
-                del self.cards_out[self.cards_out.index(card)]
+        for card in range(5):
+            self.hand.append(shuffledcards.pop())
+            self.cards_out = card_values[:]
+        for card in self.hand:
+            del self.cards_out[self.cards_out.index(card)]
         self.handbu = self.hand[:]
         self.cards_outbu = self.cards_out[:]
 
@@ -105,12 +100,9 @@ class Player:
 
     def getcardvalues(self, trump_local):
         self.cardvalues = []
-        if replay == 2:
-            self.cardvalues = self.handbu[:]
-        else:
-            for card in self.hand:
-                value = calc_card_point_value(trump_local, card)
-                self.cardvalues.append(value)
+        for card in self.hand:
+            value = calc_card_point_value(trump_local, card)
+            self.cardvalues.append(value)
         return self.cardvalues
 
     def calc_handvalue(self, trump_local, bidding_round):
@@ -630,8 +622,7 @@ teamscores = [team1score, team2score]
 
 while game < games:
     # Dealing
-    if not (replay == 2):
-        dealer_num = nextdealer_num
+    dealer_num = nextdealer_num
     if lpactive:
         print("\n\nThe dealer is " + Players[dealer_num].name + ".")
     Team1.trickcount = 0
@@ -641,11 +632,8 @@ while game < games:
     shuffle(shuffledcards)
     for player in Players:
         player.getcards()
-    if replay == 2:
-        topcard = topcardbu[:]
-    else:
-        topcard = shuffledcards[0]
-        topcardbu = topcard[:]
+    topcard = shuffledcards[0]
+    topcardbu = topcard[:]
     trump = topcard[0]
     if lpactive:
         print("The up-card is " + labelcard(topcard[0], topcard[1]))
@@ -847,28 +835,6 @@ while game < games:
                 str(Team2.trickscore)
             )
         teamscores = [Team1.score, Team2.score]
-        # This is the part where I'll try to make it possible to replay a hand.
-        replay = 0
-        while not replay:
-            try:
-                replay = int(input("\nReplay hand? (1 = no, 2 = yes)"))
-            except ValueError:
-                lpdiscard = 999
-        if replay == 2:
-            for team in Teams:
-                if team.bid == 0:
-                    if team.trickscore > 2:
-                        team.score += -2
-                if team.bid == 1:
-                    if team.trickscore > 2:
-                        team.score += -1
-                    if team.trickscore > 4:
-                        team.score += -1
-                if team.bid == 2:
-                    if team.trickscore > 2:
-                        team.score += -1
-                    if team.trickscore > 4:
-                        team.score += -3
 
         if max(teamscores) > 9:
             if lpactive:
