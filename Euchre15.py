@@ -463,7 +463,7 @@ class LivePlayer(Player):
             while bid_type not in validbids:
                 try:
                     bid_type = input("\nDo you want to bid? (0=no; 1=yes; 2=go alone)")
-                except:
+                except Exception:
                     bid_type = 999
             if bid_type == 88:
                 Teams[0].score += 10
@@ -488,7 +488,7 @@ class LivePlayer(Player):
             while bid_type not in validbids:
                 try:
                     bid_type = input("\nDo you want to bid? (0=no; 1=yes; 2=go alone)")
-                except:
+                except Exception:
                     bid_type = 999
             if bid_type > 0:
                 validtrump = [0, 1, 2, 3]
@@ -499,7 +499,7 @@ class LivePlayer(Player):
                         trump = input(
                             "Which suit? (hearts=0, spades=1, diamonds=2, clubs=3)"
                         )
-                    except:
+                    except Exception:
                         trump = 999
                     if trump == topcard[0]:
                         print("You cannot bid " + suitlabels[topcard[0]] + ".")
@@ -539,7 +539,7 @@ class LivePlayer(Player):
         while pc not in legit:
             try:
                 pc = input("Which card? (1 through " + str(len(self.hand)) + "): ")
-            except:
+            except Exception:
                 pc = 999
             if pc in legit:
                 if tricksequence.index(self) > 0:
@@ -580,7 +580,7 @@ class Team:
 while not realplayer:
     try:
         realplayer = input("Do you want to be a player? 1=yes, 2= no): ")
-    except:
+    except Exception:
         realplayer == 0
     if realplayer == "1":
         Player0 = LivePlayer("You", 0)
@@ -607,7 +607,7 @@ Teams = [Team1, Team2]
 while not games:
     try:
         games = int(input("How many games?"))
-    except:
+    except ValueError:
         games = 0
     if games > 200 and lpactive:
         games = 0
@@ -709,7 +709,7 @@ while game < games:
                         lpdiscard = input(
                             "\nWhich card do you want to discard? (1 through 6)"
                         )
-                    except:
+                    except Exception:
                         lpdiscard = 999
                 del Player0.hand[lpdiscard - 1]
         break
@@ -850,8 +850,8 @@ while game < games:
         replay = 0
         while not replay:
             try:
-                replay = input("\nReplay hand? (1 = no, 2 = yes)")
-            except:
+                replay = int(input("\nReplay hand? (1 = no, 2 = yes)"))
+            except ValueError:
                 lpdiscard = 999
         if replay == 2:
             for team in Teams:
