@@ -570,20 +570,20 @@ class Team:
 
 # Get input from player.
 
-while not realplayer:
-    try:
-        realplayer = input("Do you want to be a player? 1=yes, 2= no): ")
-    except Exception:
-        realplayer == 0
-    if realplayer == "1":
-        Player0 = LivePlayer("You", 0)
-        lpactive = 1
-    elif realplayer == "2":
-        Player0 = Player(Playernames[0], 0)
-    else:
-        realplayer = 0
+# while not realplayer:
+#     try:
+#         realplayer = input("Do you want to be a player? 1=yes, 2= no): ")
+#     except Exception:
+#         realplayer == 0
+#     if realplayer == "1":
+#         Player0 = LivePlayer("You", 0)
+#         lpactive = 1
+#     elif realplayer == "2":
+#         Player0 = Player(Playernames[0], 0)
+#     else:
+#         realplayer = 0
 
-
+Player0 = Player(Playernames[0], 0)
 Player1 = Player(Playernames[1], 1)
 Player2 = Player(Playernames[2], 2)
 Player3 = Player(Playernames[3], 3)
@@ -597,16 +597,17 @@ Team2.setopposingteam(Team1)
 
 Teams = [Team1, Team2]
 
-while not games:
-    try:
-        games = int(input("How many games?"))
-    except ValueError:
-        games = 0
-    if games > 200 and lpactive:
-        games = 0
-        print("Too many!")
-    if games < 0:
-        games = 0
+# while not games:
+#     try:
+#         games = int(input("How many games?"))
+#     except ValueError:
+#         games = 0
+#     if games > 200 and lpactive:
+#         games = 0
+#         print("Too many!")
+#     if games < 0:
+#         games = 0
+games = 1
 
 # Start game.
 
