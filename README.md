@@ -1,7 +1,10 @@
 # Euchre
 This is my Euchre program.
 
+## Developer installation
 
+    pip install -r dev-requirements.txt
+    pip install --editable .
 
 ## Running tests
 
