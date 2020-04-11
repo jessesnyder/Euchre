@@ -1,5 +1,7 @@
-def test_end_to_end():
-    from euchre import Euchre15
+from euchre import Euchre15
 
-    scores = [Euchre15.Teams[0].gamescore, Euchre15.Teams[1].gamescore]
+
+def test_end_to_end():
+    result = Euchre15.run()
+    scores = [result[0].gamescore, result[1].gamescore]
     assert scores[0] + scores[1] == 1
