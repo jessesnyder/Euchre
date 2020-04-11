@@ -5,6 +5,7 @@ This is my Euchre program.
 
     pip install -r dev-requirements.txt
     pip install --editable .
+    pre-commit install
 
 ## Running tests
 
