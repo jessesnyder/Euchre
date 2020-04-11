@@ -9,24 +9,28 @@ from random import randint
 
 def run():
     card_values = [(x, y) for x in range(4) for y in range(6)]
+    # Having same-color suits two apart enables actions recognizing their
+    # complementary relationship in Euchre.
     suitlabels = [
         "Hearts",
         "Spades",
         "Diamonds",
         "Clubs",
-    ]  # Having same-color suits two apart enables actions recognizing their complementary relationship in Euchre.
+    ]
     positionlabels = ["9", "10", "Jack", "Queen", "King", "Ace"]
     Playernames = ["Sam", "Kim", "Sue", "Tim"]
-    realplayer = 0
-    name = ""
-    hands = 0
+    # realplayer = 0
+    # name = ""
+    # hands = 0
     hand = 0
     bidding_data = []
     games = 0
     game = 0
     leadsuit = -1
     lpactive = 0  # By default, there's no live player.
-    bidding_round = 0  # NOTE: With respect to the function showhand, bidding_round just serves to distinguish between when trump is known (0) and when it isn't (1).
+    # NOTE: With respect to the function showhand, bidding_round just serves
+    # to distinguish between when trump is known (0) and when it isn't (1).
+    # bidding_round = 0
     topcard = []
 
     # This section is for defining global functions.
@@ -119,18 +123,18 @@ def run():
             count = 0
             for card in trial_hand:
                 if not (card[0] == trump_local) and not card == LB_local:
-                    discardvalues[count] = (card[1] - 4.5) / pow(
-                        suitcounts[card[0]], 3
-                    )  # formula computes value of all non-trump card values by subtracting 4.5 from positional value, then dividing by the cube of all cards in that suit.
+                    # formula computes value of all non-trump card values by
+                    # subtracting 4.5 from positional value,
+                    # then dividing by the cube of all cards in that suit.
+                    discardvalues[count] = (card[1] - 4.5) / pow(suitcounts[card[0]], 3)
                 count += 1
             if len(trial_hand) == 6:
                 del trial_hand[discardvalues.index(min(discardvalues))]
             for card in trial_hand:
                 self.handvalue += calc_card_point_value(trump_local, card)
                 if card[1] < 5 and card[1] > 0:
-                    self.handvalue -= (
-                        1  # reduces value of 10 through King for bidding purposes
-                    )
+                    # reduces value of 10 through King for bidding purposes
+                    self.handvalue -= 1
             trumpvoid = 1
             if suitcounts[trump_local] > 0:
                 trumpvoid = 0
@@ -139,14 +143,13 @@ def run():
                     if suitcounts[suit] == 0 and not (suit == trump_local):
                         self.handvalue += 6
             if bidding_round == 0:
-                if (
-                    self.partner.number == dealer_num
-                ):  # Extra points for adding up-card to hand or to partner's hand.
+                if self.partner.number == dealer_num:
+                    # Extra points for adding up-card to hand or to partner's hand.
                     self.handvalue += calc_card_point_value(trump_local, topcard) + 3
                 if self.opposingteam == Players[dealer_num].opposingteam:
-                    self.handvalue -= (
-                        calc_card_point_value(trump_local, topcard) + 3
-                    )  # Negative points for adding up-card to opposing team's hand, plus extra penalty (3) for possibility they'll create a void.
+                    # Negative points for adding up-card to opposing team's hand,
+                    # plus extra penalty (3) for possibility they'll create a void.
+                    self.handvalue -= calc_card_point_value(trump_local, topcard) + 3
             return self.handvalue
 
         def showhand(self, trump_local, bidding_round):
@@ -157,9 +160,9 @@ def run():
             self.hand.sort(key=lambda card: card[1])  # sort by position
             self.hand.sort(key=lambda card: card[0])  # sort by suit
             LB_local = (999, 999)
-            if (
-                bidding_round == 0 and trump_local > -1
-            ):  # NOTE: Bidding round is 0 in first round of bidding and after a bid is made
+            if bidding_round == 0 and trump_local > -1:
+                # NOTE: Bidding round is 0 in first round of bidding
+                # and after a bid is made
                 trumpcards = []
                 trumplist = [0, 1, 2, 3]
                 trumplist = trumplist[trump_local:] + trumplist[:trump_local]
@@ -170,9 +173,8 @@ def run():
                 selfhandmatch = self.hand[:]
                 for card in selfhandmatch:
                     if card in trumpcards:
-                        del self.hand[
-                            self.hand.index(card)
-                        ]  # removes trump cards from self.hand
+                        # removes trump cards from self.hand:
+                        del self.hand[self.hand.index(card)]
                 trumpcardvalues = []
                 trumpcards2 = trumpcards[:]
                 for card in trumpcards:
@@ -181,20 +183,19 @@ def run():
                     )  # calculates values for trump cards
 
                 def findkey(tup):
-                    return trumpcardvalues[
-                        trumpcards2.index(tup)
-                    ]  # function returns value of trump card by matching position of the card tuple (suit, position) in an unchanging master list of trump cards
+                    # function returns value of trump card by matching position
+                    # of the card tuple (suit, position) in an unchanging master
+                    # list of trump cards
+                    return trumpcardvalues[trumpcards2.index(tup)]
 
                 trumpcards.sort(
                     key=findkey
                 )  # sorts trump cards according to their value
                 for card in self.hand:
-                    trumpcards.append(
-                        card
-                    )  # re-attaches cards from rest of hand to trump cards
-                self.hand = trumpcards[
-                    :
-                ]  # assigns new values to self.hand from foregoing
+                    # re-attaches cards from rest of hand to trump cards
+                    trumpcards.append(card)
+                # assigns new values to self.hand from foregoing
+                self.hand = trumpcards[:]
             if self.hand[0] == LB_local:
                 currentsuit = trump
             else:
@@ -260,7 +261,6 @@ def run():
                     else:
                         bid_type = 1
                     trump = x[y.index(max(y))]
-                #                print(self.name+" has hand value "+str(max(y)))
                 else:
                     bid_type = 0
             self.team.bid = bid_type
@@ -288,16 +288,17 @@ def run():
                         ) < calc_card_point_value(trump_local, card2):
                             higher += 1
                     if higher == 0:
-                        lead_card_values[
-                            count
-                        ] += 2  # card is higher than trump cards still out in other players hand (or discard pile)
+                        # card is higher than trump cards still out in other
+                        # players hand (or discard pile)
+                        lead_card_values[count] += 2
                     lead_card_values[count] -= higher
+                    # trump card value as lead increased by other trump in hand:
                     lead_card_values[count] += (
                         len(self.getsuit(trump_local, self.hand, trump_local)) - 1
-                    )  # trump card value as lead increased by other trump in hand
-                    lead_card_values[count] -= 2 * (
-                        sum(self.voids[self.number])
-                    )  # trump card value as lead descreased by voids in hand (missed opportunity to trump opponents' high off-suit cards)
+                    )
+                    # trump card value as lead descreased by voids in hand
+                    # (missed opportunity to trump opponents' high off-suit cards)
+                    lead_card_values[count] -= 2 * (sum(self.voids[self.number]))
                     count += 1
                 # This section to determine value of leading with non-trump cards.
                 else:
@@ -313,13 +314,13 @@ def run():
                     if higher == 0:
                         lead_card_values[count] += 2  # Card is high in suit.
                     if (lower - higher) > 1:
-                        lead_card_values[
-                            count
-                        ] += 1  # Of cards in same suit that are still out there, lower cards outnumber higher by more than 1.
+                        # Of cards in same suit that are still out there,
+                        # lower cards outnumber higher by more than 1.
+                        lead_card_values[count] += 1
                     if higher > lower:
-                        lead_card_values[
-                            count
-                        ] -= 1  # Of cards in same suit that are still out there, more are higher than lower.
+                        # Of cards in same suit that are still out there,
+                        # more are higher than lower.
+                        lead_card_values[count] -= 1
                     if (
                         sum(self.voids[self.partner.number]) > 0
                         and self.voids[self.partner.number][trump_local] == 0
@@ -330,35 +331,32 @@ def run():
                             self.voids[self.opposingteam.playerA.number][trump_local]
                             == 1
                         ):
-                            lead_card_values[
-                                count
-                            ] += 1  # player in opposing team cannot beat, cannot trump
+                            # player in opposing team cannot beat, cannot trump
+                            lead_card_values[count] += 1
                         else:
-                            lead_card_values[
-                                count
-                            ] -= 1  # player in opposing team has void, could possibly trump
+                            # player in opposing team has void, could possibly trump
+                            lead_card_values[count] -= 1
                     if self.voids[self.opposingteam.playerB.number][card[0]] == 1:
                         if (
                             self.voids[self.opposingteam.playerB.number][trump_local]
                             == 1
                         ):
-                            lead_card_values[
-                                count
-                            ] += 1  # player in opposing team cannot beat, cannot trump
+                            # player in opposing team cannot beat, cannot trump
+                            lead_card_values[count] += 1
                         else:
-                            lead_card_values[
-                                count
-                            ] -= 1  # player in opposing team has void, could possibly trump
+                            # player in opposing team has void, could possibly trump
+                            lead_card_values[count] -= 1
                     if (
                         len(self.getsuit(card[0], self.hand, trump_local)) == 1
                         and len(self.getsuit(trump_local, self.hand, trump_local)) > 0
                     ):
-                        lead_card_values[
-                            count
-                        ] += 1  # could create a void in own hand, then trump
+                        # could create a void in own hand, then trump
+                        lead_card_values[count] += 1
                     count += 1
             leadcard = self.hand[lead_card_values.index(max(lead_card_values))]
-            return leadcard  # NOTE-If highest value is found in more than one card, the first card in hand will be chosen.
+            # NOTE-If highest value is found in more than one card, the first
+            # card in hand will be chosen.
+            return leadcard
 
         def follow(self, leadsuit_local, trump_local):
             follow_card_values = []
@@ -386,18 +384,25 @@ def run():
                     ):
                         if calc_card_point_value(
                             trump_local, card
-                        ) > calc_card_point_value(
-                            trump_local, partnercard
-                        ):  # And there's a within-suit card still out that's higher than partner's.
-                            # NOTE: This will sometimes lead to playing a higher card than necessary--if in last position, will play highest card even when a lower might be sure to win; and if partner is just one step below.
+                        ) > calc_card_point_value(trump_local, partnercard):
+                            # And there's a within-suit card still out that's higher
+                            # than partner's.
+                            # This will sometimes lead to playing a higher card
+                            # than necessary--if in last position,
+                            # will play highest card even when a lower might be sure to
+                            # win; and if partner is just one step below.
                             if calc_card_point_value(
                                 trump_local, highcard
                             ) > calc_card_point_value(trump_local, partnercard):
-                                return highcard  # ... and could lose to other in-suit card, then play my high card, if it beats partner's.
+                                # ... and could lose to other in-suit card, then play
+                                # my high card, if it beats partner's.
+                                return highcard
                     else:
                         return lowcard
-                else:  # If partner not winning....
-                    # NOTE: This will sometimes lead to playing a higher card than necessary.
+                else:
+                    # If partner not winning....
+                    # NOTE: This will sometimes lead to playing a higher
+                    # card than necessary.
                     if calc_card_point_value(trump_local, highcard) > max(
                         played_cards_values
                     ):
@@ -405,9 +410,8 @@ def run():
                     else:
                         return lowcard
             elif trumpcards:
-                if (
-                    Players[currentwinner_num] == self.partner
-                ):  # If your partner is winning....
+                if Players[currentwinner_num] == self.partner:
+                    # If your partner is winning....
                     partnercard = played_cards[tricksequence.index(self.partner)]
                     for card in self.getsuit(
                         leadsuit_local, self.cards_out, trump_local
@@ -418,7 +422,9 @@ def run():
                             if calc_card_point_value(
                                 trump_local, lowtrump
                             ) > calc_card_point_value(trump_local, partnercard):
-                                return lowtrump  # ... and could lose to other in-suit card, then play my lowest trump card, if it beats partner's.
+                                # ... and could lose to other in-suit card,
+                                # then play my lowest trump card, if it beats partner's.
+                                return lowtrump
                             elif calc_card_point_value(
                                 trump_local, hightrump
                             ) > calc_card_point_value(trump_local, partnercard):
@@ -581,7 +587,8 @@ def run():
             self.trickscore = 0
             self.gamescore = 0
             self.bid = 0
-            # Bind players as attributes in team to players that exist outside the team. Otherwise, having players bid and play in order seemed too complicated.
+            # Bind players as attributes in team to players that exist outside the team.
+            # Otherwise, having players bid and play in order seemed too complicated.
             self.playerA = Players[number - 1]
             self.playerB = Players[number + 1]
             self.playerA.setpartner(self.playerB)
@@ -659,7 +666,7 @@ def run():
         for player in Players:
             player.getcards()
         topcard = shuffledcards[0]
-        topcardbu = topcard[:]
+        # topcardbu = topcard[:]
         trump = topcard[0]
         if lpactive:
             print("The up-card is " + labelcard(topcard[0], topcard[1]))
@@ -671,19 +678,19 @@ def run():
         firstbidder_num = Players[dealers[1]].number
         bidders = positions[firstbidder_num:] + positions[:firstbidder_num]
         # Bidding
-        bidding_round = 0
+        # bidding_round = 0
         bid = 0
         for bidder_num in bidders:
-            bid = Players[bidder_num].bid(
-                0, bidders.index(bidder_num)
-            )  # Second parameter is "player position" in bidding order, currently stored when recording live player data. May have other uses.
+            # Second parameter is "player position" in bidding order,
+            # currently stored when recording live player data. May have other uses.
+            bid = Players[bidder_num].bid(0, bidders.index(bidder_num))
             bid_type = bid[1]
             if bid_type > 0:
                 bidmaker = Players[bidder_num]
                 Players[dealer_num].hand.append(topcard)
-                if isinstance(
-                    Players[dealer_num], LivePlayer
-                ):  # If the LivePlayer needs to discard, the following is skipped. LP must be prompted to discard below.
+                if isinstance(Players[dealer_num], LivePlayer):
+                    # If the LivePlayer needs to discard, the following is skipped.
+                    # LP must be prompted to discard below.
                     pass
                 else:
                     handbackup = Players[dealer_num].hand[:]
@@ -695,9 +702,11 @@ def run():
                             Players[dealer_num].calc_handvalue(trump, 0)
                         )
                     Players[dealer_num].hand = handbackup
+                    # Discards from dealers hand the card that resulted in highest
+                    # hand value when discarded:
                     del Players[dealer_num].hand[
                         discardvalues.index(max(discardvalues))
-                    ]  # Discards from dealers hand the card that resulted in highest hand value when discarded.
+                    ]
             if bid_type == 0:
                 if lpactive:
                     print(Players[bidder_num].name + " passes.")
@@ -732,7 +741,8 @@ def run():
                             lpdiscard = 999
                     del Player0.hand[lpdiscard - 1]
             break
-        if bid_type == 0:  # round of bidding in other suits, if bid_type is still 0.
+        if bid_type == 0:
+            # round of bidding in other suits, if bid_type is still 0.
             for bidder_num in bidders:
                 Players[bidder_num].updatecards_out(topcard)
             for bidder_num in bidders:
@@ -779,7 +789,8 @@ def run():
                 if trickcount == 1:
                     leader_num = firstbidder_num
                 else:
-                    leader_num = currentwinner_num
+                    raise Exception("We never declare currentwinner_num!")
+                    # leader_num = currentwinner_num
                 tricksequence = Players[leader_num:] + Players[0:leader_num]
                 if bid_type == 2:
                     tricksequence.remove(bidmaker.partner)
@@ -798,24 +809,28 @@ def run():
                         )
                     played_cards.append(played_card)
                     if not (played_card[0]) == leadsuit:
+                        # All players update their known voids if the see current
+                        # player not following suit.
+                        # NOTE: This would be better if it could somehow be assessed at
+                        # the end of the trick.
+                        # Otherwise, players are playing as if people who have already
+                        # played in trick could trump in.
                         for player2 in Players:
-                            player2.voids[player.number][
-                                leadsuit
-                            ] = 1  # All players update their known voids if the see current player not following suit. NOTE: This would be better if it could somehow be assessed at the end of the trick. Otherwise, players are playing as if people who have already played in trick could trump in.
+                            player2.voids[player.number][leadsuit] = 1
                     for player2 in Players:
                         if not (player2 == player):
-                            player2.updatecards_out(
-                                played_card
-                            )  # All players update the cards they know are out.
+                            # All players update the cards they know are out.
+                            player2.updatecards_out(played_card)
                         for suit in range(4):
                             if (
                                 len(player2.getsuit(suit, player2.cards_out, trump))
                                 == 0
                             ):
+                                # If player knows, based on played cards and own hand,
+                                # there's a void in a suit, this is registered as a
+                                # void for all players, only known to player.
                                 for player3 in Players:
-                                    player3.voids[player2.number][
-                                        suit
-                                    ] = 1  # If player knows, based on played cards and own hand, there's a void in a suit, this is registered as a void for all players, only known to player.
+                                    player3.voids[player2.number][suit] = 1
                     if played_card[0] == leadsuit or played_card == LB:
                         played_cards_values.append(
                             calc_card_point_value(trump, played_card)
@@ -826,9 +841,12 @@ def run():
                         )
                     else:
                         played_cards_values.append(-1)
+                    # the current winner number is the number of the player in the
+                    # tricksequence whose card value is currently highest among all
+                    # played cards:
                     currentwinner_num = tricksequence[
                         played_cards_values.index(max(played_cards_values))
-                    ].number  # i.e., the current winner number is the number of the player in the tricksequence whose card value is currently highest among all played cards.
+                    ].number
                 Players[currentwinner_num].team.trickscore += 1
                 trickcount += 1
                 if lpactive:
