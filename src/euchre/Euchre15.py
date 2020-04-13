@@ -22,6 +22,7 @@ def run():
     # realplayer = 0
     # name = ""
     # hands = 0
+    currentwinner_num = None
     hand = 0
     bidding_data = []
     games = 0
@@ -789,8 +790,7 @@ def run():
                 if trickcount == 1:
                     leader_num = firstbidder_num
                 else:
-                    raise Exception("We never declare currentwinner_num!")
-                    # leader_num = currentwinner_num
+                    leader_num = currentwinner_num
                 tricksequence = Players[leader_num:] + Players[0:leader_num]
                 if bid_type == 2:
                     tricksequence.remove(bidmaker.partner)
