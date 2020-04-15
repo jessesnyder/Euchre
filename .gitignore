@@ -3,3 +3,4 @@ __pycache__
 .coverage
 htmlcov/
 .vscode/
+src/euchre.egg-info
