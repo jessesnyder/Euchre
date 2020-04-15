@@ -5,20 +5,39 @@ from random import randint
 # Showcards Class
 # class Showcards
 # This section is for setting global variables and importing methods.
+card_values = [(x, y) for x in range(4) for y in range(6)]
+# Having same-color suits two apart enables actions recognizing their
+# complementary relationship in Euchre.
+suitlabels = [
+    "Hearts",
+    "Spades",
+    "Diamonds",
+    "Clubs",
+]
+positionlabels = ["9", "10", "Jack", "Queen", "King", "Ace"]
+Playernames = ["Sam", "Kim", "Sue", "Tim"]
+# This section is for defining global functions.
 
 
-def run(lpactive, games):
-    card_values = [(x, y) for x in range(4) for y in range(6)]
-    # Having same-color suits two apart enables actions recognizing their
-    # complementary relationship in Euchre.
-    suitlabels = [
-        "Hearts",
-        "Spades",
-        "Diamonds",
-        "Clubs",
-    ]
-    positionlabels = ["9", "10", "Jack", "Queen", "King", "Ace"]
-    Playernames = ["Sam", "Kim", "Sue", "Tim"]
+def labelcard(suit, position):
+    "Labels cards in a way comprehensible to user."
+    return str("the " + positionlabels[position] + " of " + suitlabels[suit])
+
+
+def calc_card_point_value(trump_local, card_local):
+    value = card_local[1]
+    if card_local[0] == trump_local:
+        if card_local[1] == 2:
+            value += 16
+        else:
+            value += 6
+    if abs(card_local[0] - trump_local) == 2 and card_local[1] == 2:
+        value += 13  # Sets value of left bauer.
+    return value
+
+
+def run(have_real_player, games):
+
     # realplayer = 0
     # name = ""
     # hands = 0
@@ -31,23 +50,6 @@ def run(lpactive, games):
     # to distinguish between when trump is known (0) and when it isn't (1).
     # bidding_round = 0
     topcard = []
-
-    # This section is for defining global functions.
-
-    def labelcard(suit, position):
-        "Labels cards in a way comprehensible to user."
-        return str("the " + positionlabels[position] + " of " + suitlabels[suit])
-
-    def calc_card_point_value(trump_local, card_local):
-        value = card_local[1]
-        if card_local[0] == trump_local:
-            if card_local[1] == 2:
-                value += 16
-            else:
-                value += 6
-        if abs(card_local[0] - trump_local) == 2 and card_local[1] == 2:
-            value += 13  # Sets value of left bauer.
-        return value
 
     # This section is for defining object classes.
 
@@ -601,7 +603,7 @@ def run(lpactive, games):
 
     # Set players
 
-    if lpactive == 1:
+    if have_real_player is True:
         Player0 = LivePlayer("You", 0)
     else:
         Player0 = Player(Playernames[0], 0)
@@ -621,7 +623,7 @@ def run(lpactive, games):
 
     # Start game.
 
-    if lpactive:
+    if have_real_player:
         print("Your partner is Sue.")
 
     positions = [0, 1, 2, 3]
@@ -634,7 +636,7 @@ def run(lpactive, games):
     while game < games:
         # Dealing
         dealer_num = nextdealer_num
-        if lpactive:
+        if have_real_player:
             print("\n\nThe dealer is " + Players[dealer_num].name + ".")
         Team1.trickcount = 0
         Team2.trickcount = 0
@@ -646,10 +648,10 @@ def run(lpactive, games):
         topcard = shuffledcards[0]
         # topcardbu = topcard[:]
         trump = topcard[0]
-        if lpactive:
+        if have_real_player:
             print("The up-card is " + labelcard(topcard[0], topcard[1]))
         for player in Players:
-            if lpactive and player == 0:
+            if have_real_player and player == 0:
                 player.showhand(trump, 0)
         dealers = positions[dealer_num:] + positions[:dealer_num]
         nextdealer_num = Players[dealers[1]].number
@@ -686,7 +688,7 @@ def run(lpactive, games):
                         discardvalues.index(max(discardvalues))
                     ]
             if bid_type == 0:
-                if lpactive:
+                if have_real_player:
                     print(Players[bidder_num].name + " passes.")
                 continue
             else:
@@ -695,7 +697,7 @@ def run(lpactive, games):
                 action = " orders "
                 if bidder_num == dealer_num:
                     action = " picks "
-                if lpactive:
+                if have_real_player:
                     print(
                         Players[bidder_num].name
                         + action
@@ -730,13 +732,13 @@ def run(lpactive, games):
                 if bid_type > 0:
                     bidmaker = Players[bidder_num]
                 if bid_type == 0:
-                    if lpactive:
+                    if have_real_player:
                         print(Players[bidder_num].name + " passes.")
                     continue
                 else:
                     if bid_type == 2:
                         alone = 1
-                    if lpactive:
+                    if have_real_player:
                         print(
                             Players[bidder_num].name
                             + " bids "
@@ -746,7 +748,7 @@ def run(lpactive, games):
                         )
                     break
         if bid_type == 0:
-            if lpactive:
+            if have_real_player:
                 print("No one bids. Redeal!")
             continue
         else:
@@ -760,7 +762,7 @@ def run(lpactive, games):
             for player in Players:
                 player.voids = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
             for trick in range(5):
-                if lpactive:
+                if have_real_player:
                     print("\nTrick " + str(trickcount) + ": ")
                 played_cards = []  # Cards played in trick
                 played_cards_values = []  # Values of cards played in trick
@@ -777,7 +779,7 @@ def run(lpactive, games):
                         leadsuit = played_card[0]
                         if played_card == LB:
                             leadsuit = trump
-                    if lpactive:
+                    if have_real_player:
                         print(
                             player.name
                             + " plays "
@@ -826,7 +828,7 @@ def run(lpactive, games):
                     ].number
                 Players[currentwinner_num].team.trickscore += 1
                 trickcount += 1
-                if lpactive:
+                if have_real_player:
                     print("\n" + Players[currentwinner_num].name + " wins trick!")
             for team in Teams:
                 if team.bid == 0:
@@ -846,16 +848,16 @@ def run(lpactive, games):
                     if team.trickscore > 4:
                         team.score += 3
             # End of round
-            if lpactive:
+            if have_real_player:
                 print(roundwinner.name + " wins round!")
-            if lpactive:
+            if have_real_player:
                 print(
                     "Team 1 score: "
                     + str(Team1.score)
                     + "; Team 2 score: "
                     + str(Team2.score)
                 )
-            if lpactive:
+            if have_real_player:
                 print(
                     "Team 1 trick count:"
                     + str(Team1.trickscore)
@@ -865,7 +867,7 @@ def run(lpactive, games):
             teamscores = [Team1.score, Team2.score]
 
             if max(teamscores) > 9:
-                if lpactive:
+                if have_real_player:
                     print(
                         "Team "
                         + str(teamscores.index(max(teamscores)) + 1)
@@ -877,9 +879,9 @@ def run(lpactive, games):
                 Team1.score = 0
                 Team2.score = 0
                 game += 1
-                if lpactive:
+                if have_real_player:
                     print("END OF GAME " + str(game))
-                if lpactive:
+                if have_real_player:
                     print(
                         "Team1 game wins=",
                         Team1.gamescore,
@@ -887,7 +889,7 @@ def run(lpactive, games):
                         Team2.gamescore,
                     )
 
-    if lpactive:
+    if have_real_player:
         print("Team1 game wins=", Team1.gamescore, " Team2 game wins=", Team2.gamescore)
     return Teams
 
@@ -904,9 +906,9 @@ if __name__ == "__main__":
         except ValueError:
             realplayer == 0
         if realplayer == 1:
-            lpactive = 1
+            have_real_player = True
         elif realplayer == 2:
-            lpactive = 0
+            have_real_player = False
         else:
             realplayer = 0
 
@@ -915,10 +917,10 @@ if __name__ == "__main__":
             games = int(input("How many games?"))
         except ValueError:
             games = 0
-        if games > 200 and lpactive:
+        if games > 200 and have_real_player:
             games = 0
             print("Too many!")
         if games < 0:
             games = 0
 
-    run(lpactive, games)
+    run(have_real_player, games)
