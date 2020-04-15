@@ -7,7 +7,7 @@ from random import randint
 # This section is for setting global variables and importing methods.
 
 
-def run():
+def run(lpactive, games):
     card_values = [(x, y) for x in range(4) for y in range(6)]
     # Having same-color suits two apart enables actions recognizing their
     # complementary relationship in Euchre.
@@ -25,10 +25,8 @@ def run():
     currentwinner_num = None
     hand = 0
     bidding_data = []
-    games = 0
     game = 0
     leadsuit = -1
-    lpactive = 0  # By default, there's no live player.
     # NOTE: With respect to the function showhand, bidding_round just serves
     # to distinguish between when trump is known (0) and when it isn't (1).
     # bidding_round = 0
@@ -601,22 +599,13 @@ def run():
             self.playerA.setopposingteam(team)
             self.playerB.setopposingteam(team)
 
-    # Get input from player.
+    # Set players
 
-    # while not realplayer:
-    #     try:
-    #         realplayer = input("Do you want to be a player? 1=yes, 2= no): ")
-    #     except Exception:
-    #         realplayer == 0
-    #     if realplayer == "1":
-    #         Player0 = LivePlayer("You", 0)
-    #         lpactive = 1
-    #     elif realplayer == "2":
-    #         Player0 = Player(Playernames[0], 0)
-    #     else:
-    #         realplayer = 0
+    if lpactive == 1:
+        Player0 = LivePlayer("You", 0)
+    else:
+        Player0 = Player(Playernames[0], 0)
 
-    Player0 = Player(Playernames[0], 0)
     Player1 = Player(Playernames[1], 1)
     Player2 = Player(Playernames[2], 2)
     Player3 = Player(Playernames[3], 3)
@@ -629,18 +618,6 @@ def run():
     Team2.setopposingteam(Team1)
 
     Teams = [Team1, Team2]
-
-    # while not games:
-    #     try:
-    #         games = int(input("How many games?"))
-    #     except ValueError:
-    #         games = 0
-    #     if games > 200 and lpactive:
-    #         games = 0
-    #         print("Too many!")
-    #     if games < 0:
-    #         games = 0
-    games = 1
 
     # Start game.
 
@@ -916,4 +893,32 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    games = 0
+    realplayer = 0
+
+    # Get input from player.
+
+    while not realplayer:
+        try:
+            realplayer = int(input("Do you want to be a player? 1=yes, 2= no): "))
+        except ValueError:
+            realplayer == 0
+        if realplayer == 1:
+            lpactive = 1
+        elif realplayer == 2:
+            lpactive = 0
+        else:
+            realplayer = 0
+
+    while not games:
+        try:
+            games = int(input("How many games?"))
+        except ValueError:
+            games = 0
+        if games > 200 and lpactive:
+            games = 0
+            print("Too many!")
+        if games < 0:
+            games = 0
+
+    run(lpactive, games)
