@@ -1,10 +1,11 @@
 from random import shuffle
 from random import randint
-from players import Player
-from players import LivePlayer
-from players import Team
-from players import playernames
-import cards
+
+from euchre.players import Player
+from euchre.players import LivePlayer
+from euchre.players import Team
+from euchre.players import playernames
+from euchre import cards
 
 
 def run(have_real_player, games):

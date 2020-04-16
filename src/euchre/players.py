@@ -1,4 +1,4 @@
-import cards
+from euchre import cards
 
 playernames = ["Sam", "Kim", "Sue", "Tim"]
 
