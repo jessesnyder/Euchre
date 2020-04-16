@@ -3,40 +3,8 @@ from random import randint
 from players import Player
 from players import LivePlayer
 from players import Team
-
-# Input Class
-# Showcards Class
-# class Showcards
-# This section is for setting global variables and importing methods.
-card_values = [(x, y) for x in range(4) for y in range(6)]
-# Having same-color suits two apart enables actions recognizing their
-# complementary relationship in Euchre.
-suitlabels = [
-    "Hearts",
-    "Spades",
-    "Diamonds",
-    "Clubs",
-]
-positionlabels = ["9", "10", "Jack", "Queen", "King", "Ace"]
-Playernames = ["Sam", "Kim", "Sue", "Tim"]
-# This section is for defining global functions.
-
-
-def labelcard(suit, position):
-    "Labels cards in a way comprehensible to user."
-    return str("the " + positionlabels[position] + " of " + suitlabels[suit])
-
-
-def calc_card_point_value(trump_local, card_local):
-    value = card_local[1]
-    if card_local[0] == trump_local:
-        if card_local[1] == 2:
-            value += 16
-        else:
-            value += 6
-    if abs(card_local[0] - trump_local) == 2 and card_local[1] == 2:
-        value += 13  # Sets value of left bauer.
-    return value
+from players import playernames
+import cards
 
 
 def run(have_real_player, games):
@@ -59,11 +27,11 @@ def run(have_real_player, games):
     if have_real_player:
         Player0 = LivePlayer("You", 0)
     else:
-        Player0 = Player(Playernames[0], 0)
+        Player0 = Player(playernames[0], 0)
 
-    Player1 = Player(Playernames[1], 1)
-    Player2 = Player(Playernames[2], 2)
-    Player3 = Player(Playernames[3], 3)
+    Player1 = Player(playernames[1], 1)
+    Player2 = Player(playernames[2], 2)
+    Player3 = Player(playernames[3], 3)
     Players = [Player0, Player1, Player2, Player3]
 
     Team1 = Team(1)
@@ -94,7 +62,7 @@ def run(have_real_player, games):
         Team1.trickcount = 0
         Team2.trickcount = 0
         alone = 0
-        shuffledcards = card_values[:]
+        shuffledcards = cards.card_values[:]
         shuffle(shuffledcards)
         for player in Players:
             player.getcards()
@@ -102,7 +70,7 @@ def run(have_real_player, games):
         # topcardbu = topcard[:]
         trump = topcard[0]
         if have_real_player:
-            print("The up-card is " + labelcard(topcard[0], topcard[1]))
+            print("The up-card is " + cards.labelcard(topcard[0], topcard[1]))
         for player in Players:
             if have_real_player and player == 0:
                 player.showhand(trump, 0)
@@ -155,7 +123,7 @@ def run(have_real_player, games):
                         Players[bidder_num].name
                         + action
                         + "up "
-                        + labelcard(topcard[0], topcard[1])
+                        + cards.labelcard(topcard[0], topcard[1])
                         + (". Going alone" * alone)
                         + "."
                     )
@@ -195,7 +163,7 @@ def run(have_real_player, games):
                         print(
                             Players[bidder_num].name
                             + " bids "
-                            + suitlabels[trump]
+                            + cards.suitlabels[trump]
                             + (" alone" * alone)
                             + "."
                         )
@@ -236,7 +204,7 @@ def run(have_real_player, games):
                         print(
                             player.name
                             + " plays "
-                            + labelcard(played_card[0], played_card[1])
+                            + cards.labelcard(played_card[0], played_card[1])
                             + "."
                         )
                     played_cards.append(played_card)
@@ -265,11 +233,11 @@ def run(have_real_player, games):
                                     player3.voids[player2.number][suit] = 1
                     if played_card[0] == leadsuit or played_card == LB:
                         played_cards_values.append(
-                            calc_card_point_value(trump, played_card)
+                            cards.calc_card_point_value(trump, played_card)
                         )
                     elif played_card[0] == trump:
                         played_cards_values.append(
-                            calc_card_point_value(trump, played_card)
+                            cards.calc_card_point_value(trump, played_card)
                         )
                     else:
                         played_cards_values.append(-1)

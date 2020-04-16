@@ -1,3 +1,8 @@
+import cards
+
+playernames = ["Sam", "Kim", "Sue", "Tim"]
+
+
 class Player:
     def __init__(self, name, number):
         self.name = name
@@ -10,7 +15,7 @@ class Player:
         self.hand = []
         for card in range(5):
             self.hand.append(shuffledcards.pop())
-            self.cards_out = card_values[:]
+            self.cards_out = cards.card_values[:]
         for card in self.hand:
             del self.cards_out[self.cards_out.index(card)]
         self.handbu = self.hand[:]
@@ -144,26 +149,28 @@ class Player:
             currentsuit = trump
         else:
             currentsuit = self.hand[0][0]
-        print(suitlabels[currentsuit] + ":"),
+        print(cards.suitlabels[currentsuit] + ":"),
         for card in self.hand:
             if card == LB_local:
                 if not card == self.hand[0]:
                     print(","),  # ,end=''
-                print("Jack of " + suitlabels[card[0]] + " [left bauer]"),  # ,end=""
+                print(
+                    "Jack of " + cards.suitlabels[card[0]] + " [left bauer]"
+                ),  # ,end=""
             elif card[0] == currentsuit:
                 if not card == self.hand[0]:
                     print(","),  # ,end=''
                 print(
                     positionlabels[card[1]]
                     + (
-                        (" of " + suitlabels[card[0]] + " [left bauer]")
+                        (" of " + cards.suitlabels[card[0]] + " [left bauer]")
                         * (card == LB_local)
                     )
                 ),  # ,end=''
             else:
                 currentsuit = card[0]
                 print(
-                    "\n" + suitlabels[card[0]] + ": " + positionlabels[card[1]]
+                    "\n" + cards.suitlabels[card[0]] + ": " + positionlabels[card[1]]
                 ),  # ,end=''
         print("\n")
 
@@ -451,7 +458,7 @@ class LivePlayer(Player):
                     except ValueError:
                         trump = 999
                     if trump == topcard[0]:
-                        print("You cannot bid " + suitlabels[topcard[0]] + ".")
+                        print("You cannot bid " + cards.suitlabels[topcard[0]] + ".")
                 handval = self.calc_handvalue(trump, 1)
             else:
                 x = [0, 1, 2, 3]
