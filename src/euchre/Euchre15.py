@@ -34,8 +34,8 @@ def run(have_real_player, games):
     Player3 = Player(playernames[3], 3)
     Players = [Player0, Player1, Player2, Player3]
 
-    Team1 = Team(1)
-    Team2 = Team(2)
+    Team1 = Team(1, Players)
+    Team2 = Team(2, Players)
 
     Team1.setopposingteam(Team2)
     Team2.setopposingteam(Team1)
@@ -65,7 +65,7 @@ def run(have_real_player, games):
         shuffledcards = cards.card_values[:]
         shuffle(shuffledcards)
         for player in Players:
-            player.getcards()
+            player.getcards(shuffledcards)
         topcard = shuffledcards[0]
         # topcardbu = topcard[:]
         trump = topcard[0]
@@ -84,7 +84,9 @@ def run(have_real_player, games):
         for bidder_num in bidders:
             # Second parameter is "player position" in bidding order,
             # currently stored when recording live player data. May have other uses.
-            bid = Players[bidder_num].bid(0, bidders.index(bidder_num))
+            bid = Players[bidder_num].bid(
+                0, bidders.index(bidder_num), Teams, topcard, dealer_num, hand
+            )
             bid_type = bid[1]
             if bid_type > 0:
                 bidmaker = Players[bidder_num]
@@ -100,7 +102,9 @@ def run(have_real_player, games):
                         Players[dealer_num].hand = handbackup[:]
                         del Players[dealer_num].hand[discard]
                         discardvalues.append(
-                            Players[dealer_num].calc_handvalue(trump, 0)
+                            Players[dealer_num].calc_handvalue(
+                                trump, 0, dealer_num, topcard, Players
+                            )
                         )
                     Players[dealer_num].hand = handbackup
                     # Discards from dealers hand the card that resulted in highest
@@ -147,7 +151,9 @@ def run(have_real_player, games):
             for bidder_num in bidders:
                 Players[bidder_num].updatecards_out(topcard)
             for bidder_num in bidders:
-                bid = Players[bidder_num].bid(1, bidders.index(bidder_num))
+                bid = Players[bidder_num].bid(
+                    1, bidders.index(bidder_num), Teams, topcard, dealer_num, hand
+                )
                 trump = bid[0]
                 bid_type = bid[1]
                 if bid_type > 0:
@@ -195,7 +201,16 @@ def run(have_real_player, games):
                 if bid_type == 2:
                     tricksequence.remove(bidmaker.partner)
                 for player in tricksequence:
-                    played_card = player.play(leadsuit, trump)
+                    played_card = player.play(
+                        leadsuit,
+                        trump,
+                        tricksequence,
+                        bidmaker,
+                        Players,
+                        currentwinner_num,
+                        played_cards,
+                        played_cards_values,
+                    )
                     if player == tricksequence[0]:
                         leadsuit = played_card[0]
                         if played_card == LB:
