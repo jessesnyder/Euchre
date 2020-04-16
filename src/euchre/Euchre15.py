@@ -14,7 +14,6 @@ def run(have_real_player, games):
     # hands = 0
     currentwinner_num = None
     hand = 0
-    bidding_data = []
     game = 0
     leadsuit = -1
     # NOTE: With respect to the function showhand, bidding_round just serves

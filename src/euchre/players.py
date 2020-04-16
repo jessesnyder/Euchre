@@ -401,6 +401,7 @@ class LivePlayer(Player):
         self.name = name
         self.number = number
         self.voids = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        self.bidding_data = []
 
     def bid(
         self, bidding_round, player_position
@@ -430,7 +431,7 @@ class LivePlayer(Player):
                 topcard,
                 self.hand,
             ]
-            bidding_data.append(roundinfo)
+            self.bidding_data.append(roundinfo)
             self.team.bid = bid_type
             return trump, bid_type
         else:
@@ -481,7 +482,7 @@ class LivePlayer(Player):
                 topcard,
                 self.hand,
             ]
-            bidding_data.append(roundinfo)
+            self.bidding_data.append(roundinfo)
             self.team.bid = bid_type
             return trump, bid_type
 
